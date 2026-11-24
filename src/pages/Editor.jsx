@@ -247,7 +247,7 @@ export default function Editor() {
               </button>
             </div>
             <p className="field-hint center">
-              Your link never changes — edit and press Publish, and everyone with your link, QR code or NFC card sees the update. Only this browser can edit this card.
+              Your link never changes. Edit and press Publish, and everyone with your link, QR code or NFC card sees the update. Only this browser can edit this card.
             </p>
           </div>
         </aside>

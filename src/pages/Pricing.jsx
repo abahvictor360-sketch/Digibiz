@@ -30,15 +30,15 @@ const COMPARE = [
 ]
 
 const FAQS = [
-  ['Is the Starter plan really free?', 'Yes. Starter is free forever — no card details needed. Create your card, share it and let people save your contact.'],
+  ['Is the Starter plan really free?', 'Yes. Starter is free forever, and no card details are needed. Create your card, share it and let people save your contact.'],
   ['Can I switch plans later?', 'Any time. Upgrade or downgrade from your account and the change applies from your next billing date.'],
   ['How does yearly billing work?', 'Pay for 12 months up front and save about 20% compared with paying monthly.'],
-  ['Do you offer plans for larger teams?', 'Yes — for more than 10 people, get in touch and we’ll put together a plan for your organisation.'],
+  ['Do you offer plans for larger teams?', 'Yes. For more than 10 people, get in touch and we’ll put together a plan for your organisation.'],
 ]
 
 function Cell({ v }) {
   if (v === true) return <span className="cmp-yes"><Icon name="check" size={16} stroke={2.4} /></span>
-  if (v === false) return <span className="cmp-no">—</span>
+  if (v === false) return <span className="cmp-no" aria-label="Not included">✕</span>
   return <span>{v}</span>
 }
 
@@ -46,8 +46,8 @@ export default function Pricing() {
   const [yearly, setYearly] = useState(false)
   const [open, setOpen] = useState(0)
   useEffect(() => {
-    document.title = 'Pricing — digibiz'
-    return () => (document.title = 'digibiz — Smart Digital Business Cards')
+    document.title = 'Pricing | digibiz'
+    return () => (document.title = 'digibiz | Smart Digital Business Cards')
   }, [])
 
   return (

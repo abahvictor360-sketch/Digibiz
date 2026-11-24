@@ -48,9 +48,9 @@ export default function CardView() {
   const url = id ? `${window.location.origin}/c/${id}` : window.location.href
 
   useEffect(() => {
-    document.title = card?.name ? `${card.name} — digibiz card` : 'digibiz card'
+    document.title = card?.name ? `${card.name} | digibiz card` : 'digibiz card'
     return () => {
-      document.title = 'digibiz — Smart Digital Business Cards'
+      document.title = 'digibiz | Smart Digital Business Cards'
     }
   }, [card])
 

@@ -372,7 +372,7 @@ a.contact-chan:hover { border-color: var(--ink); }
 .bc-btn-primary { background: var(--bc-primary-bg); color: var(--bc-primary-fg); }
 .bc-btn-icon { flex: none; width: 46px; }
 
-/* Themes — shared by cards, swatches and mini visuals */
+/* Themes: shared by cards, swatches and mini visuals */
 .theme-glass {
   --bc-bg: linear-gradient(135deg, rgba(86, 90, 130, 0.92) 0%, rgba(134, 118, 178, 0.9) 48%, rgba(206, 160, 196, 0.88) 100%);
   --bc-fg: #ffffff; --bc-muted: rgba(255, 255, 255, 0.75); --bc-border: rgba(255, 255, 255, 0.35);

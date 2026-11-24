@@ -9,7 +9,7 @@ export default function QRModal({ url, name, note, onClose }) {
   useEffect(() => {
     QRCode.toDataURL(url, { width: 640, margin: 2, errorCorrectionLevel: 'L', color: { dark: '#111111', light: '#ffffff' } })
       .then(setSrc)
-      .catch(() => setErr('This card is too large for a QR code — try a smaller photo or a shorter bio.'))
+      .catch(() => setErr('This card is too large for a QR code. Try a smaller photo or a shorter bio.'))
   }, [url])
 
   useEffect(() => {

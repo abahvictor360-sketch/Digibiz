@@ -1,12 +1,12 @@
-# digibiz — Smart Digital Business Cards
+# digibiz: Smart Digital Business Cards
 
 Create a digital business card, publish it to a short permanent link, and put that link on a physical NFC card.
 
 ## Pages
-- `/` — landing page
-- `/create` — card editor with live preview and **Publish**
-- `/c/:id` — public card page (Save contact / Share / QR)
-- `/nfc` — write your link to an NFC card (Web NFC on Android Chrome; NFC Tools instructions for iPhone) and download print-ready card artwork (front + back, 300 DPI, 85.6 × 54 mm, 2 mm bleed)
+- `/`: landing page
+- `/create`: card editor with live preview and **Publish**
+- `/c/:id`: public card page (Save contact / Share / QR)
+- `/nfc`: write your link to an NFC card (Web NFC on Android Chrome; NFC Tools instructions for iPhone) and download print-ready card artwork (front + back, 300 DPI, 85.6 × 54 mm, 2 mm bleed)
 - `/pricing`, `/contact`
 
 ## How publishing works
@@ -19,7 +19,7 @@ The NFC chip only holds the short link (~40 bytes), so any NTAG213/215/216 card 
 ## Develop
 ```bash
 npm install
-npm run dev      # http://localhost:5173 — /api runs locally, saving cards to .local-store/
+npm run dev      # http://localhost:5173 (/api runs locally, saving cards to .local-store/)
 npm run build
 ```
 

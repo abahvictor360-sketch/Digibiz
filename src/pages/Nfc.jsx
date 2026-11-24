@@ -55,7 +55,7 @@ function NfcWriter({ url, onDone }) {
       onDone?.()
     } catch (e) {
       const msg =
-        e.name === 'AbortError' ? 'Timed out — no NFC card was detected. Try again and hold the card still.'
+        e.name === 'AbortError' ? 'Timed out. No NFC card was detected. Try again and hold the card still.'
         : e.name === 'NotAllowedError' ? 'NFC permission was blocked. Allow NFC for this site in Chrome settings, then try again.'
         : e.name === 'NotSupportedError' ? 'NFC is turned off or unavailable. Turn on NFC in your phone settings.'
         : e.name === 'NetworkError' ? 'The card moved before writing finished, or it’s locked. Hold it still and try again.'
@@ -82,7 +82,7 @@ function NfcWriter({ url, onDone }) {
         else if (found === url) setState({ phase: 'checked', ok: true, msg: 'This card opens your digibiz card.' })
         else setState({ phase: 'checked', msg: `This card opens a different link: ${found}` })
       }
-      ndef.onreadingerror = () => setState({ phase: 'checked', msg: 'Couldn’t read that card. It may be blank or unformatted — try writing to it.' })
+      ndef.onreadingerror = () => setState({ phase: 'checked', msg: 'Couldn’t read that card. It may be blank or unformatted. Try writing to it.' })
     } catch (e) {
       setState({ phase: 'error', msg: e.message || 'Could not start NFC.' })
     }
@@ -141,8 +141,8 @@ export default function Nfc() {
   }, [error])
 
   useEffect(() => {
-    document.title = 'NFC card — digibiz'
-    return () => (document.title = 'digibiz — Smart Digital Business Cards')
+    document.title = 'NFC card | digibiz'
+    return () => (document.title = 'digibiz | Smart Digital Business Cards')
   }, [])
 
   const card = paramId ? remote : draft
@@ -185,10 +185,10 @@ export default function Nfc() {
           <h1>
             Tap. <span className="ul">Connected.</span>
           </h1>
-          <p className="lead">Put your digibiz link on a real NFC card. Anyone taps it with their phone and your card opens instantly — no app needed. Your link never changes, so you never have to rewrite the card.</p>
+          <p className="lead">Put your digibiz link on a real NFC card. Anyone taps it with their phone and your card opens instantly, no app needed. Your link never changes, so you never have to rewrite the card.</p>
         </section>
 
-        {/* Step 1 — link */}
+        {/* Step 1: link */}
         <section className="panel nfc-step">
           <div className="step-badge">1</div>
           <div className="nfc-step-body">
@@ -212,7 +212,7 @@ export default function Nfc() {
                   </button>
                 </div>
                 <p className="field-hint">
-                  {bytes} bytes on the chip — fits every common NFC card (NTAG213 holds 137 bytes, NTAG215 holds 496, NTAG216 holds 868).
+                  {bytes} bytes on the chip. It fits every common NFC card (NTAG213 holds 137 bytes, NTAG215 holds 496, NTAG216 holds 868).
                 </p>
               </>
             ) : (
@@ -221,7 +221,7 @@ export default function Nfc() {
           </div>
         </section>
 
-        {/* Step 2 — write */}
+        {/* Step 2: write */}
         <section className="panel nfc-step">
           <div className="step-badge">2</div>
           <div className="nfc-step-body">
@@ -247,7 +247,7 @@ export default function Nfc() {
                   <p>
                     {isAndroid
                       ? 'Your browser can’t write NFC. Open this page in Chrome for Android, or scan the code with your phone.'
-                      : 'Computers can’t write NFC cards. Scan this code with an Android phone to open the writer in Chrome — it takes one tap.'}
+                      : 'Computers can’t write NFC cards. Scan this code with an Android phone to open the writer in Chrome. It takes one tap.'}
                   </p>
                   <p className="field-hint">On iPhone, use the free NFC Tools app: Write → Add a record → URL → paste your link → Write.</p>
                 </div>
@@ -257,7 +257,7 @@ export default function Nfc() {
           </div>
         </section>
 
-        {/* Step 3 — print */}
+        {/* Step 3: print */}
         <section className="panel nfc-step">
           <div className="step-badge">3</div>
           <div className="nfc-step-body">
@@ -304,7 +304,7 @@ export default function Nfc() {
           <div className="nfc-step-body">
             <h2>{standalone ? 'You’re using the digibiz app' : 'Install digibiz as an app'}</h2>
             {standalone ? (
-              <p className="muted">{isIOS ? 'Note: iPhone doesn’t let apps installed from the web use NFC. Use NFC Tools to write cards (step 2).' : 'NFC writing works right here in the app — no browser needed.'}</p>
+              <p className="muted">{isIOS ? 'Note: iPhone doesn’t let apps installed from the web use NFC. Use NFC Tools to write cards (step 2).' : 'NFC writing works right here in the app, no browser needed.'}</p>
             ) : isIOS ? (
               <p className="muted">In Safari, tap <b>Share</b> → <b>Add to Home Screen</b>. You can edit and share your card from the app. Writing NFC still needs the NFC Tools app on iPhone.</p>
             ) : (

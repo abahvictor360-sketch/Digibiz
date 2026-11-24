@@ -11,9 +11,9 @@ const FAQS = [
   ['Is digibiz free?', 'Yes. Creating, sharing and saving a card is free forever. Pro adds custom domains, extra themes and lead capture.'],
   ['Do the people I share with need an app?', 'No. Your card opens in any browser. They can tap “Save contact” to add you to their phone in one step.'],
   ['Where is my card stored?', 'When you press Publish, your card is saved securely so your short link, QR code and NFC card always show your latest details. Only the browser you published from can edit it.'],
-  ['Can I update my card after sharing it?', 'Yes. Your link never changes — edit your card, press Publish, and everyone with your link, QR code or NFC card sees the update.'],
-  ['Can I print the QR code?', 'Yes — download the QR as a high-resolution PNG and add it to flyers, packaging, name badges or your email signature.'],
-  ['Does it work with NFC cards?', 'Yes. Get any blank NFC card or sticker (NTAG213/215/216), open “NFC card” in the editor and tap the card to your Android phone to write it — iPhone users can use the free NFC Tools app. We also give you print-ready front and back artwork.'],
+  ['Can I update my card after sharing it?', 'Yes. Your link never changes. Edit your card, press Publish, and everyone with your link, QR code or NFC card sees the update.'],
+  ['Can I print the QR code?', 'Yes. Download the QR as a high-resolution PNG and add it to flyers, packaging, name badges or your email signature.'],
+  ['Does it work with NFC cards?', 'Yes. Get any blank NFC card or sticker (NTAG213/215/216), open “NFC card” in the editor and tap the card to your Android phone to write it. iPhone users can use the free NFC Tools app. We also give you print-ready front and back artwork.'],
 ]
 
 const TESTIMONIALS = [
@@ -38,10 +38,10 @@ function Hero() {
             <br />
             Business <span className="ul">Card</span>
           </h1>
-          <p className="lead">Create a beautiful card in minutes. Share it with a link, QR code or NFC tap — and let people save your contact in one touch.</p>
+          <p className="lead">Create a beautiful card in minutes. Share it with a link, QR code or NFC tap, and let people save your contact in one touch.</p>
           <div className="hero-ctas">
             <Link to="/create" className="btn btn-dark btn-lg">
-              Get started — it’s free
+              Get started, it’s free
             </Link>
             <a href="#how" className="btn btn-ghost btn-lg">
               <span className="play">
@@ -134,12 +134,12 @@ function Features() {
               </div>
             </div>
             <h3>Live card editor</h3>
-            <p className="muted">Type, pick a theme, upload a photo — and watch your card update in real time.</p>
+            <p className="muted">Type, pick a theme, upload a photo, and watch your card update in real time.</p>
           </div>
 
           <div className="tile tile-social">
             <h3>Every link in one place</h3>
-            <p className="muted">LinkedIn, Instagram, WhatsApp, X and more — one tap away.</p>
+            <p className="muted">LinkedIn, Instagram, WhatsApp, X and more, one tap away.</p>
             <div className="social-cloud">
               {SOCIALS.map((s) => (
                 <span key={s.key} className="social-tag">
@@ -253,7 +253,7 @@ function AppShowcase() {
         <div className="showcase">
           <div className="showcase-copy">
             <h2>Your network, in your pocket</h2>
-            <p>Manage your card from any phone. See your links, update your details and share in seconds — wherever the conversation starts.</p>
+            <p>Manage your card from any phone. See your links, update your details and share in seconds, wherever the conversation starts.</p>
             <Link to="/create" className="btn btn-lime btn-lg">
               Build my card <Icon name="arrow" size={18} />
             </Link>

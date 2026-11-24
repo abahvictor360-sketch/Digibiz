@@ -12,14 +12,14 @@ export default function Contact() {
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
   useEffect(() => {
-    document.title = 'Contact us — digibiz'
-    return () => (document.title = 'digibiz — Smart Digital Business Cards')
+    document.title = 'Contact us | digibiz'
+    return () => (document.title = 'digibiz | Smart Digital Business Cards')
   }, [])
 
   const submit = (e) => {
     e.preventDefault()
-    const subject = `[digibiz] ${form.topic} — ${form.name}`
-    const body = `${form.message}\n\n— ${form.name}\n${form.email}`
+    const subject = `[digibiz] ${form.topic}: ${form.name}`
+    const body = `${form.message}\n\n${form.name}\n${form.email}`
     window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
     setSent(true)
   }
