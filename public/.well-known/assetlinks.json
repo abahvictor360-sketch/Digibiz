@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.digibiz.app",
+      "sha256_cert_fingerprints": ["1D:5A:E1:4E:3B:0C:C4:4A:D1:4D:8E:B3:7B:DB:39:80:4A:99:79:E2:B3:16:F6:D3:7A:B7:FC:4E:95:66:C0:9F"]
+    }
+  }
+]

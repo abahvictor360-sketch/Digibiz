@@ -1,0 +1,55 @@
+// digibiz Android app: a Trusted Web Activity that opens the digibiz PWA
+// full-screen in Chrome, so Web NFC works inside the app.
+plugins {
+    id 'com.android.application'
+}
+
+def siteHost = 'digibiz-beta.vercel.app'
+
+android {
+    namespace 'com.digibiz.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.digibiz.app'
+        minSdk 21
+        targetSdk 35
+        versionCode Integer.parseInt(System.getenv('VERSION_CODE') ?: '1')
+        versionName System.getenv('VERSION_NAME') ?: '1.0.0'
+
+        manifestPlaceholders = [
+            hostName       : siteHost,
+            defaultUrl     : "https://${siteHost}/create?source=android",
+            launcherName   : 'digibiz'
+        ]
+        resValue 'string', 'asset_statements', "[{ \\\"relation\\\": [\\\"delegate_permission/common.handle_all_urls\\\"], \\\"target\\\": { \\\"namespace\\\": \\\"web\\\", \\\"site\\\": \\\"https://${siteHost}\\\" } }]"
+    }
+
+    signingConfigs {
+        release {
+            def ks = System.getenv('KEYSTORE_FILE')
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('KEYSTORE_PASSWORD')
+                keyAlias System.getenv('KEY_ALIAS') ?: 'digibiz'
+                keyPassword System.getenv('KEY_PASSWORD') ?: System.getenv('KEYSTORE_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+}

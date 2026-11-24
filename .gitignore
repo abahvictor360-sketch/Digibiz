@@ -3,3 +3,9 @@ dist
 .vercel
 .DS_Store
 .local-store
+android/.gradle
+android/build
+android/app/build
+android/local.properties
+*.jks
+*.keystore

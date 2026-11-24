@@ -1,0 +1,95 @@
+name: Android APK
+
+on:
+  push:
+    paths:
+      - 'android/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.0.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          KS="$RUNNER_TEMP/release.jks"
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$KEYSTORE_PW" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$KS"
+            echo "KEYSTORE_PASSWORD=$KEYSTORE_PW" >> "$GITHUB_ENV"
+            echo "SIGNING=release" >> "$GITHUB_ENV"
+          else
+            # No key configured yet: sign with a throwaway key so the APK still installs.
+            PW=$(openssl rand -hex 16)
+            keytool -genkeypair -keystore "$KS" -storetype PKCS12 -alias digibiz -keyalg RSA -keysize 2048 \
+              -validity 10000 -storepass "$PW" -keypass "$PW" -dname "CN=digibiz preview"
+            echo "::add-mask::$PW"
+            echo "KEYSTORE_PASSWORD=$PW" >> "$GITHUB_ENV"
+            echo "SIGNING=temporary" >> "$GITHUB_ENV"
+          fi
+          echo "KEYSTORE_FILE=$KS" >> "$GITHUB_ENV"
+          echo "KEY_ALIAS=digibiz" >> "$GITHUB_ENV"
+
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Collect APK
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk "out/digibiz-v${VERSION_NAME}.apk"
+          FP=$(keytool -printcert -jarfile "out/digibiz-v${VERSION_NAME}.apk" | grep -m1 "SHA256:" | awk '{print $2}')
+          echo "CERT_SHA256=$FP" >> "$GITHUB_ENV"
+          {
+            echo "## digibiz Android v${VERSION_NAME}"
+            echo ""
+            echo "- Signing: **${SIGNING}**"
+            echo "- Certificate SHA-256: \`${FP}\`"
+            if [ "$SIGNING" = "temporary" ]; then
+              echo ""
+              echo "> Built with a temporary key. Add the ANDROID_KEYSTORE_BASE64 and ANDROID_KEYSTORE_PASSWORD"
+              echo "> repository secrets so the app opens full-screen and future versions update in place."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: digibiz-android-v${{ env.VERSION_NAME }}
+          path: out/*.apk
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="android-v${VERSION_NAME}"
+          NOTES="digibiz for Android v${VERSION_NAME}
+
+          Install: open this page on your Android phone, download the APK, open it and allow installs from your browser when asked.
+
+          Signed with the ${SIGNING} key (SHA-256 ${CERT_SHA256})."
+          gh release create "$TAG" out/*.apk --target "$GITHUB_SHA" --title "digibiz Android v${VERSION_NAME}" --notes "$NOTES" --latest
