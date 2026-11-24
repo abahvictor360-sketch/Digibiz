@@ -274,8 +274,8 @@ export default function Nfc() {
                 </div>
                 <div className={`face-stage show-${side}`}>
                   <div className="face-flip">
-                    {faces.front ? <img className="face face-front" src={faces.front} alt="Card front" /> : <div className="face face-front face-skel" />}
-                    {faces.back ? <img className="face face-back" src={faces.back} alt="Card back with QR code" /> : <div className="face face-back face-skel" />}
+                    {faces.front ? <img className="card-face card-face-front" src={faces.front} alt="Card front" /> : <div className="card-face card-face-front card-face-skel" />}
+                    {faces.back ? <img className="card-face card-face-back" src={faces.back} alt="Card back with QR code" /> : <div className="card-face card-face-back card-face-skel" />}
                   </div>
                 </div>
                 <div className="print-actions">
