@@ -46,13 +46,13 @@ export const SAMPLE_CARD = {
   title: 'Founder & Creative Director',
   company: 'Northwind Studio',
   bio: 'Brand strategy, web design & growth marketing. Let’s build something people remember.',
-  phone: '+234 801 234 5678',
+  phone: '+1 416 555 0142',
   email: 'hello@northwind.studio',
   website: 'northwind.studio',
-  location: 'Lagos, Nigeria',
+  location: 'Toronto, Canada',
   avatar: johnDoePhoto,
   theme: 'glass',
-  socials: { linkedin: 'johndoe', instagram: 'northwind.studio', x: 'johndoe', whatsapp: '+2348012345678' },
+  socials: { linkedin: 'johndoe', instagram: 'northwind.studio', x: 'johndoe', whatsapp: '+14165550142' },
 }
 
 export function initials(name) {

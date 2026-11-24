@@ -6,6 +6,7 @@ import QRModal from '../components/QRModal.jsx'
 import { useToast, shareOrCopy } from '../components/Toast.jsx'
 import { navigate, Link } from '../router.jsx'
 import { usePublish } from '../usePublish.js'
+import { useInstall } from '../useInstall.js'
 import { EMPTY_CARD, SAMPLE_CARD, SOCIALS, THEMES, cardLink, downloadVCard, loadDraft, resizeImage, saveDraft } from '../lib.js'
 
 function Field({ label, children, hint }) {
@@ -33,6 +34,7 @@ export default function Editor() {
   const [tab, setTab] = useState('edit')
   const [toast, showToast] = useToast()
   const { pub, link, dirty, busy, error, publish, clearError } = usePublish(card)
+  const install = useInstall()
 
   useEffect(() => {
     const t = setTimeout(() => saveDraft(card), 250)
@@ -95,6 +97,11 @@ export default function Editor() {
           <span className="hide-sm">
             <PublishStatus pub={pub} dirty={dirty} busy={busy} />
           </span>
+          {install && (
+            <button className="btn btn-outline btn-sm" onClick={install}>
+              <Icon name="download" size={16} /> <span className="hide-xs">Install app</span>
+            </button>
+          )}
           <button className="btn btn-ghost hide-sm" onClick={() => navigate('/nfc')}>
             <Icon name="nfc" size={18} /> NFC card
           </button>
@@ -153,7 +160,7 @@ export default function Editor() {
             </div>
             <div className="grid-2">
               <Field label="Phone">
-                <input type="tel" value={card.phone} onChange={set('phone')} placeholder="+234 801 234 5678" maxLength={40} />
+                <input type="tel" value={card.phone} onChange={set('phone')} placeholder="+1 416 555 0142" maxLength={40} />
               </Field>
               <Field label="Email">
                 <input type="email" value={card.email} onChange={set('email')} placeholder="you@company.com" maxLength={100} />

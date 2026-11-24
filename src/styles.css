@@ -566,6 +566,8 @@ a.contact-chan:hover { border-color: var(--ink); }
 .tip > svg { flex: none; margin-top: 2px; }
 .tip b { display: block; margin-bottom: 4px; }
 .tip p { font-size: 14px; color: var(--muted); }
+.install-panel { flex-direction: row; gap: 18px; align-items: flex-start; padding: 28px; }
+.install-panel .nfc-step-body h2 { margin-top: 8px; }
 .print-sheet { display: none; }
 @media print {
   @page { margin: 12mm; }
@@ -577,6 +579,7 @@ a.contact-chan:hover { border-color: var(--ink); }
 }
 @media (max-width: 760px) {
   .nfc-tips { grid-template-columns: 1fr; }
+  .install-panel { flex-direction: column; padding: 22px; gap: 12px; }
   .nfc-step { flex-direction: column; padding: 22px; gap: 12px; }
   .nfc-handoff { flex-direction: column; align-items: flex-start; }
   .nfc-main { padding: 20px 12px 60px; }

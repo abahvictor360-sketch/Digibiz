@@ -5,6 +5,7 @@ import Icon from '../components/Icon.jsx'
 import { useToast } from '../components/Toast.jsx'
 import { Link } from '../router.jsx'
 import { usePublish } from '../usePublish.js'
+import { useInstall, isStandalone } from '../useInstall.js'
 import { PublishStatus } from './Editor.jsx'
 import { SAMPLE_CARD, cardLink, fetchCard, loadDraft } from '../lib.js'
 import { downloadFace, renderFace } from '../printCard.js'
@@ -123,6 +124,8 @@ export default function Nfc() {
   const { pub, dirty, busy, error, publish, clearError } = usePublish(draft)
   const [handoffQr, setHandoffQr] = useState('')
   const [side, setSide] = useState('front')
+  const install = useInstall()
+  const standalone = isStandalone()
 
   // ?id= mode: writing an existing card's link (e.g. opened on a phone from the desktop QR).
   useEffect(() => {
@@ -290,6 +293,31 @@ export default function Nfc() {
               </>
             ) : (
               <p className="muted">Publish first (step 1).</p>
+            )}
+          </div>
+        </section>
+
+        <section className="panel install-panel">
+          <span className="contact-ic">
+            <Icon name="smartphone" size={22} />
+          </span>
+          <div className="nfc-step-body">
+            <h2>{standalone ? 'You’re using the digibiz app' : 'Install digibiz as an app'}</h2>
+            {standalone ? (
+              <p className="muted">{isIOS ? 'Note: iPhone doesn’t let apps installed from the web use NFC. Use NFC Tools to write cards (step 2).' : 'NFC writing works right here in the app — no browser needed.'}</p>
+            ) : isIOS ? (
+              <p className="muted">In Safari, tap <b>Share</b> → <b>Add to Home Screen</b>. You can edit and share your card from the app. Writing NFC still needs the NFC Tools app on iPhone.</p>
+            ) : (
+              <>
+                <p className="muted">Keep your card one tap away on your home screen. On Android, the app can write NFC cards just like Chrome.</p>
+                {install ? (
+                  <button className="btn btn-dark" onClick={install} style={{ alignSelf: 'flex-start' }}>
+                    <Icon name="download" size={18} /> Install app
+                  </button>
+                ) : (
+                  <p className="field-hint">In Chrome, open the menu (⋮) and choose <b>Install app</b> or <b>Add to Home screen</b>.</p>
+                )}
+              </>
             )}
           </div>
         </section>
