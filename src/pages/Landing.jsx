@@ -52,7 +52,7 @@ function Hero() {
           </div>
           <div className="hero-proof">
             <div className="faces">
-              {['AO', 'TB', 'CE', 'DM'].map((i, n) => (
+              {['JD', 'TB', 'CE', 'DM'].map((i, n) => (
                 <span key={i} className={`face f${n}`}>
                   {i}
                 </span>
@@ -122,7 +122,7 @@ function Features() {
           <div className="tile tile-editor">
             <div className="mini-form">
               <div className="mini-label">Your name</div>
-              <div className="mini-input">Amara Okafor<span className="caret" /></div>
+              <div className="mini-input">John Doe<span className="caret" /></div>
               <div className="mini-label">Choose a theme</div>
               <div className="mini-themes">
                 {['glass', 'lime', 'midnight', 'peach', 'mono'].map((t) => (
@@ -207,7 +207,7 @@ function How() {
                   <div className="sv-themes">
                     {['glass', 'lime', 'midnight'].map((t, k) => (
                       <div key={t} className={`sv-card theme-${t}`} style={{ '--i': k }}>
-                        <Avatar card={{ name: 'A O' }} size={32} />
+                        <Avatar card={{ name: 'J D' }} size={32} />
                         <div className="sv-l" />
                         <div className="sv-l short" />
                       </div>

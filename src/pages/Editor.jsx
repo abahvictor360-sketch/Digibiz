@@ -104,7 +104,7 @@ export default function Editor() {
             </div>
             <div className="grid-2">
               <Field label="Full name">
-                <input value={card.name} onChange={set('name')} placeholder="Amara Okafor" maxLength={60} />
+                <input value={card.name} onChange={set('name')} placeholder="John Doe" maxLength={60} />
               </Field>
               <Field label="Job title">
                 <input value={card.title} onChange={set('title')} placeholder="Founder" maxLength={60} />

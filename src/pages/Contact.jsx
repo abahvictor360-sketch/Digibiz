@@ -96,7 +96,7 @@ export default function Contact() {
                 <div className="grid-2">
                   <label className="field">
                     <span className="field-label">Your name</span>
-                    <input required value={form.name} onChange={set('name')} placeholder="Amara Okafor" autoComplete="name" />
+                    <input required value={form.name} onChange={set('name')} placeholder="John Doe" autoComplete="name" />
                   </label>
                   <label className="field">
                     <span className="field-label">Email</span>

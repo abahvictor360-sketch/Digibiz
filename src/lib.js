@@ -41,7 +41,7 @@ export const EMPTY_CARD = {
 }
 
 export const SAMPLE_CARD = {
-  name: 'Amara Okafor',
+  name: 'John Doe',
   title: 'Founder & Creative Director',
   company: 'Northwind Studio',
   bio: 'Brand strategy, web design & growth marketing. Let’s build something people remember.',
@@ -51,7 +51,7 @@ export const SAMPLE_CARD = {
   location: 'Lagos, Nigeria',
   avatar: '',
   theme: 'glass',
-  socials: { linkedin: 'amaraokafor', instagram: 'northwind.studio', x: 'amaraokafor', whatsapp: '+2348012345678' },
+  socials: { linkedin: 'johndoe', instagram: 'northwind.studio', x: 'johndoe', whatsapp: '+2348012345678' },
 }
 
 export function initials(name) {
