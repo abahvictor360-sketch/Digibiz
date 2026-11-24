@@ -5,6 +5,9 @@ import CardView from './pages/CardView.jsx'
 import Pricing from './pages/Pricing.jsx'
 import Contact from './pages/Contact.jsx'
 import Nfc from './pages/Nfc.jsx'
+import Login from './pages/Login.jsx'
+import Dashboard from './pages/Dashboard.jsx'
+import Admin from './pages/Admin.jsx'
 
 export default function App() {
   const { path } = useLocation()
@@ -12,6 +15,9 @@ export default function App() {
   if (path.startsWith('/pricing')) return <Pricing />
   if (path.startsWith('/contact')) return <Contact />
   if (path.startsWith('/nfc')) return <Nfc />
+  if (path === '/login' || path === '/signup') return <Login />
+  if (path.startsWith('/dashboard')) return <Dashboard />
+  if (path.startsWith('/admin')) return <Admin />
   if (path === '/c' || path.startsWith('/c/')) return <CardView />
   return <Landing />
 }

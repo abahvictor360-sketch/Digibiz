@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Logo from './Logo.jsx'
 import Icon from './Icon.jsx'
 import { Link, useLocation } from '../router.jsx'
+import { useAuth } from '../auth.js'
 
 const LINKS = [
   { to: '/#features', label: 'Features' },
@@ -13,6 +14,7 @@ const LINKS = [
 export function Nav() {
   const [open, setOpen] = useState(false)
   const { path } = useLocation()
+  const { user } = useAuth()
   return (
     <header className="nav">
       <div className="container nav-inner">
@@ -31,6 +33,9 @@ export function Nav() {
           )}
         </nav>
         <div className="nav-cta">
+          <Link to={user ? '/dashboard' : '/login'} className="btn btn-ghost btn-sm nav-account">
+            {user ? 'Dashboard' : 'Sign in'}
+          </Link>
           <Link to="/create" className="btn btn-dark btn-sm">
             Create card
           </Link>
@@ -65,6 +70,7 @@ export function Footer({ cta = true }) {
             <a href="/#features">Features</a>
             <Link to="/pricing">Pricing</Link>
             <Link to="/create">Card editor</Link>
+            <Link to="/dashboard">Dashboard</Link>
           </div>
           <div>
             <h4>Company</h4>

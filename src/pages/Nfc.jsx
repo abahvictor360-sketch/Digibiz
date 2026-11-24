@@ -130,7 +130,7 @@ export default function Nfc() {
   // ?id= mode: writing an existing card's link (e.g. opened on a phone from the desktop QR).
   useEffect(() => {
     if (!paramId) return
-    fetchCard(paramId).then(setRemote).catch(() => showToast('Couldn’t load that card'))
+    fetchCard(paramId).then((r) => setRemote(r.card)).catch(() => showToast('Couldn’t load that card'))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paramId])
 

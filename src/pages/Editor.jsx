@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Logo from '../components/Logo.jsx'
 import Icon, { SocialBadge } from '../components/Icon.jsx'
 import BusinessCard from '../components/BusinessCard.jsx'
@@ -7,7 +7,9 @@ import { useToast, shareOrCopy } from '../components/Toast.jsx'
 import { navigate, Link } from '../router.jsx'
 import { usePublish } from '../usePublish.js'
 import { useInstall } from '../useInstall.js'
-import { EMPTY_CARD, SAMPLE_CARD, SOCIALS, THEMES, cardLink, downloadVCard, loadDraft, resizeImage, saveDraft } from '../lib.js'
+import { EMPTY_CARD, SAMPLE_CARD, SOCIALS, THEMES, cardFingerprint, cardLink, downloadVCard, loadDraft, normalizeCard, resizeImage, saveDraft } from '../lib.js'
+import { useAuth, must } from '../auth.js'
+import { supabase } from '../supabase.js'
 
 function Field({ label, children, hint }) {
   return (
@@ -28,18 +30,53 @@ export function PublishStatus({ pub, dirty, busy }) {
   return <span className="pub-status on"><Icon name="check" size={14} stroke={2.4} /> Live</span>
 }
 
+// /create            card kept in this browser (works without an account)
+// /create?new        new card for the signed-in account
+// /create?card=<id>  edit one of the account's cards
+function editorMode() {
+  const q = new URLSearchParams(window.location.search)
+  const id = q.get('card') || ''
+  return { mode: id ? 'owned' : q.has('new') ? 'new' : 'local', id }
+}
+
 export default function Editor() {
-  const [card, setCard] = useState(() => loadDraft() || sample())
+  const [{ mode, id: editId }] = useState(editorMode)
+  const auth = useAuth()
+  const [card, setCard] = useState(() => (mode === 'local' ? loadDraft() || sample() : mode === 'new' ? sample() : null))
   const [qr, setQr] = useState('')
   const [tab, setTab] = useState('edit')
   const [toast, showToast] = useToast()
-  const { pub, link, dirty, busy, error, publish, clearError } = usePublish(card)
+  const onCreated = useCallback((id) => window.history.replaceState({}, '', `/create?card=${id}`), [])
+  const { pub, link, dirty, busy, error, publish, reset, clearError } = usePublish(card || EMPTY_CARD, { mode, id: editId }, onCreated)
   const install = useInstall()
 
   useEffect(() => {
+    if (mode !== 'local' || !card) return
     const t = setTimeout(() => saveDraft(card), 250)
     return () => clearTimeout(t)
-  }, [card])
+  }, [card, mode])
+
+  // Account modes need a signed-in user; ?card= loads the card from the database.
+  useEffect(() => {
+    if (mode === 'local' || auth.loading) return
+    if (!auth.user) {
+      navigate(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`)
+      return
+    }
+    if (mode !== 'owned' || card) return
+    must(supabase.from('cards').select('id, data').eq('id', editId).maybeSingle())
+      .then((row) => {
+        if (!row) throw new Error('That card isn’t in your account')
+        const c = normalizeCard(row.data)
+        setCard(c)
+        reset({ id: row.id, fingerprint: cardFingerprint(c) })
+      })
+      .catch((e) => {
+        showToast(e.message)
+        setTimeout(() => navigate('/dashboard'), 1200)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, auth.loading, auth.user])
 
   useEffect(() => {
     if (error) showToast(error)
@@ -81,6 +118,18 @@ export default function Editor() {
       }
     })
 
+  if (!card) {
+    return (
+      <div className="editor-page">
+        <header className="editor-bar">
+          <Logo />
+        </header>
+        <div className="dash-loading"><span className="spinner" /> Loading card…</div>
+        {toast}
+      </div>
+    )
+  }
+
   return (
     <div className="editor-page">
       <header className="editor-bar">
@@ -102,7 +151,10 @@ export default function Editor() {
               <Icon name="download" size={16} /> <span className="hide-xs">Install app</span>
             </button>
           )}
-          <button className="btn btn-ghost hide-sm" onClick={() => navigate('/nfc')}>
+          <Link to={auth.user ? '/dashboard' : '/login'} className="btn btn-ghost hide-sm">
+            <Icon name={auth.user ? 'home' : 'user'} size={18} /> {auth.user ? 'Dashboard' : 'Sign in'}
+          </Link>
+          <button className="btn btn-ghost hide-sm" onClick={() => navigate(pub && mode !== 'local' ? `/nfc?id=${pub.id}` : '/nfc')}>
             <Icon name="nfc" size={18} /> NFC card
           </button>
           <button className="btn btn-lime" onClick={onPublish} disabled={busy}>
@@ -247,7 +299,12 @@ export default function Editor() {
               </button>
             </div>
             <p className="field-hint center">
-              Your link never changes. Edit and press Publish, and everyone with your link, QR code or NFC card sees the update. Only this browser can edit this card.
+              Your link never changes. Edit and press Publish, and everyone with your link, QR code or NFC card sees the update.{' '}
+              {mode !== 'local'
+                ? 'This card is saved to your account.'
+                : auth.user
+                  ? 'It’s saved to your account, so you can manage it from your dashboard.'
+                  : 'Sign in to manage it from any device.'}
             </p>
           </div>
         </aside>

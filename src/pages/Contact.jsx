@@ -3,12 +3,16 @@ import { Nav, Footer } from '../components/SiteChrome.jsx'
 import Icon from '../components/Icon.jsx'
 import { Link } from '../router.jsx'
 import { CONTACT_EMAIL, CONTACT_WHATSAPP } from '../config.js'
+import { supabase } from '../supabase.js'
+import { useAuth } from '../auth.js'
 
 const TOPICS = ['General question', 'Sales & team plans', 'Support', 'Partnerships']
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', topic: TOPICS[0], message: '' })
-  const [sent, setSent] = useState(false)
+  const [sent, setSent] = useState('')
+  const [sending, setSending] = useState(false)
+  const { user } = useAuth()
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
   useEffect(() => {
@@ -16,12 +20,27 @@ export default function Contact() {
     return () => (document.title = 'digibiz | Smart Digital Business Cards')
   }, [])
 
-  const submit = (e) => {
-    e.preventDefault()
+  const mailto = () => {
     const subject = `[digibiz] ${form.topic}: ${form.name}`
     const body = `${form.message}\n\n${form.name}\n${form.email}`
     window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-    setSent(true)
+    setSent('mail')
+  }
+
+  // Save to the database (admins read it in /admin); fall back to the email app.
+  const submit = async (e) => {
+    e.preventDefault()
+    setSending(true)
+    const { error } = await supabase.from('contact_messages').insert({
+      name: form.name.trim().slice(0, 100),
+      email: form.email.trim().slice(0, 200),
+      topic: form.topic,
+      message: form.message.trim().slice(0, 2000),
+      user_id: user?.id ?? null,
+    })
+    setSending(false)
+    if (error) mailto()
+    else setSent('db')
   }
 
   const channels = [
@@ -79,12 +98,16 @@ export default function Contact() {
                 <span className="missing-icon">
                   <Icon name="send" size={26} />
                 </span>
-                <h2>Almost there</h2>
-                <p className="muted">
-                  Your email app should have opened with your message ready to send. If it didn’t, email us at{' '}
-                  <a className="inline-link" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
-                </p>
-                <button type="button" className="btn btn-outline" onClick={() => setSent(false)}>
+                <h2>{sent === 'db' ? 'Message sent' : 'Almost there'}</h2>
+                {sent === 'db' ? (
+                  <p className="muted">Thanks, {form.name.split(' ')[0] || 'friend'}. We’ll reply to {form.email} soon.</p>
+                ) : (
+                  <p className="muted">
+                    Your email app should have opened with your message ready to send. If it didn’t, email us at{' '}
+                    <a className="inline-link" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+                  </p>
+                )}
+                <button type="button" className="btn btn-outline" onClick={() => { setSent(''); setForm((f) => ({ ...f, message: '' })) }}>
                   Write another message
                 </button>
               </div>
@@ -117,8 +140,8 @@ export default function Contact() {
                   <span className="field-label">Message</span>
                   <textarea required rows={6} value={form.message} onChange={set('message')} placeholder="How can we help?" maxLength={2000} />
                 </label>
-                <button type="submit" className="btn btn-dark btn-lg">
-                  Send message <Icon name="send" size={18} />
+                <button type="submit" className="btn btn-dark btn-lg" disabled={sending}>
+                  {sending ? 'Sending…' : 'Send message'} <Icon name="send" size={18} />
                 </button>
               </>
             )}
