@@ -1,21 +1,26 @@
 # digibiz — Smart Digital Business Cards
 
-A web app for creating, sharing and saving digital business cards.
+Create a digital business card, publish it to a short permanent link, and put that link on a physical NFC card.
 
-- **Landing page** (`/`): product overview, features, pricing, FAQ.
-- **Card editor** (`/create`): live preview, photo upload, contact details, social links, 5 themes.
-- **Public card** (`/c#…`): the shareable card page, with **Save contact** (vCard download), share, and QR code.
+## Pages
+- `/` — landing page
+- `/create` — card editor with live preview and **Publish**
+- `/c/:id` — public card page (Save contact / Share / QR)
+- `/nfc` — write your link to an NFC card (Web NFC on Android Chrome; NFC Tools instructions for iPhone) and download print-ready card artwork (front + back, 300 DPI, 85.6 × 54 mm, 2 mm bleed)
+- `/pricing`, `/contact`
 
-No backend: each card is encoded in its share link (`/c#<base64url JSON>`), and drafts are stored in the browser's localStorage. Uploaded photos are resized to 128px so the link stays short. The QR code leaves the photo out so the code stays scannable.
+## How publishing works
+`POST /api/cards` stores the card and returns `{ id, token }`. The browser keeps the token in localStorage and sends it as `Authorization: Bearer <token>` with `PUT /api/cards/:id` to update. Only a SHA-256 hash of the token is stored. `GET /api/cards/:id` returns the public card.
+
+Cards live in a private **Vercel Blob** store (`BLOB_READ_WRITE_TOKEN`, added automatically when the store is connected to the project). Old `/c#…` links that carry the card in the URL still open.
+
+The NFC chip only holds the short link (~40 bytes), so any NTAG213/215/216 card works, and editing the card never requires rewriting the chip.
 
 ## Develop
-
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # outputs to dist/
+npm run dev      # http://localhost:5173 — /api runs locally, saving cards to .local-store/
+npm run build
 ```
 
-## Deploy
-
-Deployed on Vercel as a Vite app. `vercel.json` rewrites every route to `index.html` so `/create` and `/c` load directly.
+Contact form recipient: `src/config.js`.

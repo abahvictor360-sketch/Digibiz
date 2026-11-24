@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Logo from '../components/Logo.jsx'
 import Icon, { SocialBadge } from '../components/Icon.jsx'
 import BusinessCard from '../components/BusinessCard.jsx'
 import QRModal from '../components/QRModal.jsx'
 import { useToast, shareOrCopy } from '../components/Toast.jsx'
-import { navigate } from '../router.jsx'
-import { qrUrl, EMPTY_CARD, SAMPLE_CARD, SOCIALS, THEMES, downloadVCard, loadDraft, resizeImage, saveDraft, shareUrl } from '../lib.js'
+import { navigate, Link } from '../router.jsx'
+import { usePublish } from '../usePublish.js'
+import { EMPTY_CARD, SAMPLE_CARD, SOCIALS, THEMES, cardLink, downloadVCard, loadDraft, resizeImage, saveDraft } from '../lib.js'
 
 function Field({ label, children, hint }) {
   return (
@@ -17,18 +18,33 @@ function Field({ label, children, hint }) {
   )
 }
 
+const sample = () => ({ ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } })
+
+export function PublishStatus({ pub, dirty, busy }) {
+  if (busy) return <span className="pub-status busy"><span className="spinner" /> Publishing…</span>
+  if (!pub) return <span className="pub-status off">Not published</span>
+  if (dirty) return <span className="pub-status warn">Unpublished changes</span>
+  return <span className="pub-status on"><Icon name="check" size={14} stroke={2.4} /> Live</span>
+}
+
 export default function Editor() {
-  const [card, setCard] = useState(() => loadDraft() || { ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } })
-  const [qr, setQr] = useState(false)
+  const [card, setCard] = useState(() => loadDraft() || sample())
+  const [qr, setQr] = useState('')
   const [tab, setTab] = useState('edit')
   const [toast, showToast] = useToast()
+  const { pub, link, dirty, busy, error, publish, clearError } = usePublish(card)
 
   useEffect(() => {
     const t = setTimeout(() => saveDraft(card), 250)
     return () => clearTimeout(t)
   }, [card])
 
-  const url = useMemo(() => shareUrl(card), [card])
+  useEffect(() => {
+    if (error) showToast(error)
+    clearError()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error])
+
   const set = (k) => (e) => setCard((c) => ({ ...c, [k]: e.target.value }))
   const setSocial = (k) => (e) => setCard((c) => ({ ...c, socials: { ...c.socials, [k]: e.target.value } }))
 
@@ -44,14 +60,24 @@ export default function Editor() {
     e.target.value = ''
   }
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(url)
-      showToast('Share link copied')
-    } catch {
-      window.prompt('Copy your card link', url)
-    }
+  // Every sharing action publishes first, so the link always shows the latest card.
+  const withLink = async (fn) => {
+    const p = await publish()
+    if (p) fn(cardLink(p.id))
   }
+  const onPublish = async () => {
+    const p = await publish({ force: !dirty })
+    if (p) showToast(pub ? 'Changes are live' : 'Your card is live')
+  }
+  const copy = () =>
+    withLink(async (url) => {
+      try {
+        await navigator.clipboard.writeText(url)
+        showToast('Link copied')
+      } catch {
+        window.prompt('Copy your card link', url)
+      }
+    })
 
   return (
     <div className="editor-page">
@@ -66,11 +92,14 @@ export default function Editor() {
           </button>
         </div>
         <div className="editor-bar-actions">
-          <button className="btn btn-ghost hide-sm" onClick={() => setQr(true)}>
-            <Icon name="qr" size={18} /> QR
+          <span className="hide-sm">
+            <PublishStatus pub={pub} dirty={dirty} busy={busy} />
+          </span>
+          <button className="btn btn-ghost hide-sm" onClick={() => navigate('/nfc')}>
+            <Icon name="nfc" size={18} /> NFC card
           </button>
-          <button className="btn btn-lime" onClick={copy}>
-            <Icon name="link" size={18} /> <span className="hide-xs">Copy link</span>
+          <button className="btn btn-lime" onClick={onPublish} disabled={busy}>
+            <Icon name="send" size={18} /> <span className="hide-xs">{pub && !dirty ? 'Published' : 'Publish'}</span>
           </button>
         </div>
       </header>
@@ -81,7 +110,7 @@ export default function Editor() {
             <div className="panel-head">
               <h2>Profile</h2>
               <div className="panel-head-actions">
-                <button className="link-btn" onClick={() => setCard({ ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } })}>Sample</button>
+                <button className="link-btn" onClick={() => setCard(sample())}>Sample</button>
                 <button className="link-btn" onClick={() => setCard({ ...EMPTY_CARD, socials: {} })}>Clear</button>
               </div>
             </div>
@@ -99,7 +128,7 @@ export default function Editor() {
                     Remove
                   </button>
                 )}
-                <p className="field-hint">Square photos work best. Resized to keep your link short.</p>
+                <p className="field-hint">Square photos work best.</p>
               </div>
             </div>
             <div className="grid-2">
@@ -124,16 +153,16 @@ export default function Editor() {
             </div>
             <div className="grid-2">
               <Field label="Phone">
-                <input type="tel" value={card.phone} onChange={set('phone')} placeholder="+234 801 234 5678" />
+                <input type="tel" value={card.phone} onChange={set('phone')} placeholder="+234 801 234 5678" maxLength={40} />
               </Field>
               <Field label="Email">
-                <input type="email" value={card.email} onChange={set('email')} placeholder="you@company.com" />
+                <input type="email" value={card.email} onChange={set('email')} placeholder="you@company.com" maxLength={100} />
               </Field>
               <Field label="Website">
-                <input value={card.website} onChange={set('website')} placeholder="company.com" />
+                <input value={card.website} onChange={set('website')} placeholder="company.com" maxLength={120} />
               </Field>
               <Field label="Location">
-                <input value={card.location} onChange={set('location')} placeholder="City, Country" />
+                <input value={card.location} onChange={set('location')} placeholder="City, Country" maxLength={80} />
               </Field>
             </div>
           </div>
@@ -152,6 +181,7 @@ export default function Editor() {
                     onChange={setSocial(s.key)}
                     placeholder={s.key === 'whatsapp' ? 'Phone number' : `${s.label} username or URL`}
                     aria-label={s.label}
+                    maxLength={120}
                   />
                 </div>
               ))}
@@ -177,39 +207,45 @@ export default function Editor() {
           <div className="preview-sticky">
             <div className="preview-label">
               <span className="dot-live" /> Live preview
+              <span className="preview-status">
+                <PublishStatus pub={pub} dirty={dirty} busy={busy} />
+              </span>
             </div>
             <BusinessCard
               card={card}
               tilt
-              onSave={() => downloadVCard(card, url)}
-              onShare={() => shareOrCopy(url, card.name, showToast)}
-              onQR={() => setQr(true)}
+              onSave={() => downloadVCard(card, link)}
+              onShare={() => withLink((url) => shareOrCopy(url, card.name, showToast))}
+              onQR={() => withLink(setQr)}
             />
             <div className="preview-actions">
-              <button className="btn btn-dark" onClick={() => navigate(new URL(url).pathname + new URL(url).hash)}>
+              <button className="btn btn-dark" onClick={() => withLink((url) => navigate(new URL(url).pathname))} disabled={busy}>
                 <Icon name="eye" size={18} /> Open card page
               </button>
-              <button className="btn btn-outline" onClick={() => setQr(true)}>
+              <button className="btn btn-outline" onClick={() => withLink(setQr)} disabled={busy}>
                 <Icon name="qr" size={18} /> QR code
               </button>
-              <button className="btn btn-outline" onClick={() => downloadVCard(card, url)}>
-                <Icon name="download" size={18} /> vCard
-              </button>
+              <Link to="/nfc" className="btn btn-outline">
+                <Icon name="nfc" size={18} /> NFC card
+              </Link>
             </div>
             <div className="share-box">
-              <span className="share-url" title={url}>{url}</span>
-              <button className="btn btn-lime btn-sm" onClick={copy}>
+              {pub ? (
+                <span className="share-url" title={link}>{link.replace(/^https?:\/\//, '')}</span>
+              ) : (
+                <span className="share-url muted-sans">Publish to get your permanent link</span>
+              )}
+              <button className="btn btn-lime btn-sm" onClick={copy} disabled={busy}>
                 <Icon name="copy" size={16} /> Copy
               </button>
             </div>
-            <p className="field-hint center">Your card lives entirely in this link — no account, nothing stored on a server. Drafts are saved in this browser.</p>
+            <p className="field-hint center">
+              Your link never changes — edit and press Publish, and everyone with your link, QR code or NFC card sees the update. Only this browser can edit this card.
+            </p>
           </div>
         </aside>
       </main>
-      {qr && (() => {
-        const q = qrUrl(card)
-        return <QRModal url={q.url} name={card.name} note={q.photoDropped ? 'Your photo is left out of the QR version to keep the code scannable. The share link includes it.' : ''} onClose={() => setQr(false)} />
-      })()}
+      {qr && <QRModal url={qr} name={card.name} onClose={() => setQr('')} />}
       {toast}
     </div>
   )

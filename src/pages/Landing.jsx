@@ -10,10 +10,10 @@ const DEMO = { ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } }
 const FAQS = [
   ['Is digibiz free?', 'Yes. Creating, sharing and saving a card is free forever. Pro adds custom domains, extra themes and lead capture.'],
   ['Do the people I share with need an app?', 'No. Your card opens in any browser. They can tap “Save contact” to add you to their phone in one step.'],
-  ['Where is my card stored?', 'Your card details are packed into the share link itself, so there is no database holding your data. Your draft is kept in your own browser.'],
-  ['Can I update my card after sharing it?', 'Edit it any time and share the new link or QR code. On Pro, a permanent short link always points to your latest version.'],
+  ['Where is my card stored?', 'When you press Publish, your card is saved securely so your short link, QR code and NFC card always show your latest details. Only the browser you published from can edit it.'],
+  ['Can I update my card after sharing it?', 'Yes. Your link never changes — edit your card, press Publish, and everyone with your link, QR code or NFC card sees the update.'],
   ['Can I print the QR code?', 'Yes — download the QR as a high-resolution PNG and add it to flyers, packaging, name badges or your email signature.'],
-  ['Does it work with NFC cards?', 'Any NFC tag that can store a URL works. Write your card link to the tag and a tap on a phone opens it.'],
+  ['Does it work with NFC cards?', 'Yes. Get any blank NFC card or sticker (NTAG213/215/216), open “NFC card” in the editor and tap the card to your Android phone to write it — iPhone users can use the free NFC Tools app. We also give you print-ready front and back artwork.'],
 ]
 
 const TESTIMONIALS = [

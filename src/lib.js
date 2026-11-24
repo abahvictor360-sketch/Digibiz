@@ -1,4 +1,5 @@
 // Card data model, themes, sharing helpers.
+import johnDoePhoto from './assets/john-doe.jpg?inline'
 
 export const SOCIALS = [
   { key: 'linkedin', label: 'LinkedIn', color: '#0a66c2', url: (v) => (isUrl(v) ? v : `https://linkedin.com/in/${clean(v)}`) },
@@ -49,7 +50,7 @@ export const SAMPLE_CARD = {
   email: 'hello@northwind.studio',
   website: 'northwind.studio',
   location: 'Lagos, Nigeria',
-  avatar: '',
+  avatar: johnDoePhoto,
   theme: 'glass',
   socials: { linkedin: 'johndoe', instagram: 'northwind.studio', x: 'johndoe', whatsapp: '+2348012345678' },
 }
@@ -93,7 +94,7 @@ export function decodeCard(str) {
     for (const [k, short] of Object.entries(KEYMAP)) if (raw[short] != null) card[k] = raw[short]
     if (typeof card.socials !== 'object' || !card.socials) card.socials = {}
     if (!THEMES.some((t) => t.key === card.theme)) card.theme = 'glass'
-    if (card.avatar && !/^(data:image\/(png|jpe?g|webp);base64,|https:\/\/)/.test(card.avatar)) card.avatar = ''
+    if (card.avatar && !/^data:image\/(png|jpe?g|webp);base64,/.test(card.avatar)) card.avatar = ''
     return card
   } catch {
     return null
@@ -102,12 +103,6 @@ export function decodeCard(str) {
 
 export function shareUrl(card) {
   return `${window.location.origin}/c#${encodeCard(card)}`
-}
-
-// QR codes hold ~2.9KB, so an uploaded photo is left out of the QR link.
-export function qrUrl(card) {
-  const hasPhoto = /^data:/.test(card.avatar || '')
-  return { url: shareUrl(hasPhoto ? { ...card, avatar: '' } : card), photoDropped: hasPhoto }
 }
 
 function vEsc(s) {
@@ -154,7 +149,7 @@ export function downloadVCard(card, link) {
 }
 
 // Resize an uploaded image to a small square JPEG so it fits in a share link.
-export function resizeImage(file, size = 128) {
+export function resizeImage(file, size = 256) {
   return new Promise((resolve, reject) => {
     const img = new Image()
     const url = URL.createObjectURL(file)
@@ -165,7 +160,7 @@ export function resizeImage(file, size = 128) {
       const s = Math.min(img.width, img.height)
       ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size)
       URL.revokeObjectURL(url)
-      resolve(c.toDataURL('image/jpeg', 0.72))
+      resolve(c.toDataURL('image/jpeg', 0.8))
     }
     img.onerror = reject
     img.src = url
@@ -187,4 +182,79 @@ export function saveDraft(card) {
   } catch {
     /* storage unavailable or full */
   }
+}
+
+// ---------- Publishing (short, permanent links) ----------
+const PUB_KEY = 'digibiz:pub'
+
+export function loadPub() {
+  try {
+    const raw = localStorage.getItem(PUB_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+function savePub(pub) {
+  try {
+    localStorage.setItem(PUB_KEY, JSON.stringify(pub))
+  } catch {
+    /* ignore */
+  }
+}
+export function forgetPub() {
+  try {
+    localStorage.removeItem(PUB_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
+export const cardFingerprint = (card) => JSON.stringify(card)
+export const cardLink = (id) => `${window.location.origin}/c/${id}`
+
+async function api(path, opts) {
+  let res
+  try {
+    res = await fetch(path, { ...opts, headers: { 'Content-Type': 'application/json', ...(opts?.headers || {}) } })
+  } catch {
+    throw new Error('You appear to be offline. Check your connection and try again.')
+  }
+  let data = {}
+  try {
+    data = await res.json()
+  } catch {
+    /* non-JSON */
+  }
+  if (!res.ok) {
+    const err = new Error(data.error || `Request failed (${res.status})`)
+    err.status = res.status
+    throw err
+  }
+  return data
+}
+
+// Creates the card on first publish, updates it afterwards. Returns the pub record.
+export async function publishCard(card) {
+  const pub = loadPub()
+  if (pub?.id && pub?.token) {
+    try {
+      await api(`/api/cards/${pub.id}`, { method: 'PUT', body: JSON.stringify({ card }), headers: { Authorization: `Bearer ${pub.token}` } })
+      const next = { ...pub, fingerprint: cardFingerprint(card), publishedAt: new Date().toISOString() }
+      savePub(next)
+      return next
+    } catch (e) {
+      if (e.status !== 404 && e.status !== 403) throw e
+      // Card gone or key lost: fall through and create a new one.
+    }
+  }
+  const { id, token } = await api('/api/cards', { method: 'POST', body: JSON.stringify({ card }) })
+  const next = { id, token, fingerprint: cardFingerprint(card), publishedAt: new Date().toISOString() }
+  savePub(next)
+  return next
+}
+
+export async function fetchCard(id) {
+  const { card } = await api(`/api/cards/${encodeURIComponent(id)}`)
+  return { ...EMPTY_CARD, ...card, socials: card.socials || {} }
 }

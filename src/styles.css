@@ -507,6 +507,82 @@ a.contact-chan:hover { border-color: var(--ink); }
 .toast svg { color: var(--lime); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+
+/* ================== Publish status ================== */
+.pub-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+.pub-status.off { background: var(--surface-2); color: var(--muted); }
+.pub-status.warn { background: #fff1d6; color: #8a5a00; }
+.pub-status.on { background: #e3f7cf; color: #2f6b0c; }
+.pub-status.busy { background: var(--surface-2); color: var(--ink-2); }
+.spinner { width: 12px; height: 12px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin 0.8s linear infinite; }
+.preview-status { margin-left: auto; }
+.editor-bar-actions { align-items: center; }
+.btn:disabled { opacity: 0.6; cursor: default; }
+.muted-sans { font-family: var(--body) !important; }
+.bc-skeleton { width: 100%; height: 560px; border-radius: 28px; background: rgba(255, 255, 255, 0.25); animation: pulse 1.5s infinite; }
+.link-btn.inline { padding: 0; font-size: inherit; color: var(--ink); text-decoration: underline; text-decoration-color: var(--lime-deep); text-underline-offset: 3px; }
+
+/* ================== NFC page ================== */
+.nfc-main { max-width: 860px; margin: 0 auto; padding: 32px 20px 70px; display: flex; flex-direction: column; gap: 16px; }
+.nfc-hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 0 20px; }
+.nfc-hero h1 { font-size: clamp(44px, 7vw, 76px); font-weight: 700; }
+.nfc-hero h1 .ul { position: relative; white-space: nowrap; }
+.nfc-hero h1 .ul::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0.06em; height: 0.22em; background: var(--lime); z-index: -1; border-radius: 4px; }
+.nfc-hero .lead { max-width: 600px; }
+.nfc-step { flex-direction: row; gap: 18px; align-items: flex-start; padding: 28px; }
+.step-badge { width: 40px; height: 40px; flex: none; border-radius: 12px; background: var(--ink); color: var(--lime); display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 20px; }
+.nfc-step-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.nfc-step-body h2 { font-size: 26px; font-weight: 700; margin-top: 6px; }
+.nfc-step-body .share-box { margin-top: 0; }
+.nfc-pubrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.nfc-writer { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 16px 0 4px; text-align: center; }
+.nfc-pulse { position: relative; width: 140px; height: 140px; display: grid; place-items: center; }
+.nfc-pulse-core { position: relative; z-index: 1; width: 84px; height: 84px; border-radius: 50%; background: var(--ink); color: var(--lime); display: grid; place-items: center; transition: background 0.3s; }
+.nfc-pulse.done .nfc-pulse-core { background: var(--lime); color: var(--ink); }
+.nfc-pulse-ring { position: absolute; inset: 28px; border-radius: 50%; border: 2px solid var(--lime-deep); opacity: 0; }
+.nfc-pulse.active .nfc-pulse-ring { animation: ripple 1.8s ease-out infinite; }
+.nfc-pulse.active .nfc-pulse-ring.r2 { animation-delay: 0.9s; }
+@keyframes ripple { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.9); opacity: 0; } }
+.nfc-msg { max-width: 440px; color: var(--ink-2); min-height: 48px; }
+.nfc-msg .err { color: #b2382e; }
+.nfc-msg .ok { color: #2f6b0c; font-weight: 600; }
+.nfc-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.nfc-guide { display: flex; flex-direction: column; gap: 10px; color: var(--ink-2); }
+.nfc-guide ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
+.nfc-handoff { display: flex; gap: 24px; align-items: center; }
+.handoff-qr { width: 170px; height: 170px; flex: none; border-radius: 16px; border: 1px solid var(--line); padding: 8px; background: #fff; image-rendering: pixelated; }
+.face-toggle { display: inline-flex; align-self: flex-start; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+.face-toggle button { padding: 7px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.face-toggle button.on { background: var(--ink); color: #fff; }
+.face-stage { perspective: 1600px; padding: 10px 0; }
+.face-flip { position: relative; width: 100%; max-width: 520px; aspect-ratio: 85.6 / 54; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.3, 0.7, 0.2, 1); }
+.face-stage.show-back .face-flip { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 3.5% / 5.5%; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 24px 50px -20px rgba(17, 17, 17, 0.45), 0 0 0 1px rgba(17, 17, 17, 0.06); }
+.face-back { transform: rotateY(180deg); }
+.face-skel { background: var(--surface-2); animation: pulse 1.5s infinite; }
+.print-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.nfc-tips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+.tip { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; }
+.tip > svg { flex: none; margin-top: 2px; }
+.tip b { display: block; margin-bottom: 4px; }
+.tip p { font-size: 14px; color: var(--muted); }
+.print-sheet { display: none; }
+@media print {
+  @page { margin: 12mm; }
+  body { background: #fff; }
+  body * { visibility: hidden; }
+  .print-sheet, .print-sheet * { visibility: visible; }
+  .print-sheet { display: flex; flex-direction: column; gap: 8mm; position: absolute; top: 0; left: 0; }
+  .print-sheet img { width: 85.6mm; height: 54mm; outline: 0.2mm dashed #bbb; }
+}
+@media (max-width: 760px) {
+  .nfc-tips { grid-template-columns: 1fr; }
+  .nfc-step { flex-direction: column; padding: 22px; gap: 12px; }
+  .nfc-handoff { flex-direction: column; align-items: flex-start; }
+  .nfc-main { padding: 20px 12px 60px; }
+  .print-actions .btn { flex: 1; }
+}
+
 /* ================== Responsive ================== */
 @media (max-width: 980px) {
   .hero-grid { grid-template-columns: 1fr; min-height: 0; }
