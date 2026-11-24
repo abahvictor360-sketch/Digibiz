@@ -1,3 +1,4 @@
+import { rpc } from './supabase.js'
 // Card data model, themes, sharing helpers.
 import johnDoePhoto from './assets/john-doe.jpg?inline'
 
@@ -213,33 +214,31 @@ export function forgetPub() {
 export const cardFingerprint = (card) => JSON.stringify(card)
 export const cardLink = (id) => `${window.location.origin}/c/${id}`
 
-async function api(path, opts) {
+// Old cards published before the database existed live behind /api/cards.
+async function fetchLegacyCard(id) {
   let res
   try {
-    res = await fetch(path, { ...opts, headers: { 'Content-Type': 'application/json', ...(opts?.headers || {}) } })
+    res = await fetch(`/api/cards/${encodeURIComponent(id)}`)
   } catch {
-    throw new Error('You appear to be offline. Check your connection and try again.')
+    res = null
   }
-  let data = {}
-  try {
-    data = await res.json()
-  } catch {
-    /* non-JSON */
-  }
-  if (!res.ok) {
-    const err = new Error(data.error || `Request failed (${res.status})`)
-    err.status = res.status
+  if (!res?.ok) {
+    const err = new Error('Card not found')
+    err.status = 404
     throw err
   }
-  return data
+  return (await res.json()).card
 }
 
+export const normalizeCard = (card) => ({ ...EMPTY_CARD, ...card, socials: card?.socials || {} })
+
 // Creates the card on first publish, updates it afterwards. Returns the pub record.
+// Signed-in users own the cards they create; the token lets this browser edit too.
 export async function publishCard(card) {
   const pub = loadPub()
   if (pub?.id && pub?.token) {
     try {
-      await api(`/api/cards/${pub.id}`, { method: 'PUT', body: JSON.stringify({ card }), headers: { Authorization: `Bearer ${pub.token}` } })
+      await rpc('update_card', { p_id: pub.id, p_card: card, p_token: pub.token })
       const next = { ...pub, fingerprint: cardFingerprint(card), publishedAt: new Date().toISOString() }
       savePub(next)
       return next
@@ -248,13 +247,26 @@ export async function publishCard(card) {
       // Card gone or key lost: fall through and create a new one.
     }
   }
-  const { id, token } = await api('/api/cards', { method: 'POST', body: JSON.stringify({ card }) })
+  const { id, token } = await createCard(card)
   const next = { id, token, fingerprint: cardFingerprint(card), publishedAt: new Date().toISOString() }
   savePub(next)
   return next
 }
 
+export async function createCard(card) {
+  const rows = await rpc('create_card', { p_card: card })
+  return rows[0]
+}
+
+// Update a card the signed-in user owns (or any card, for admins).
+export const updateOwnedCard = (id, card) => rpc('update_card', { p_id: id, p_card: card })
+
 export async function fetchCard(id) {
-  const { card } = await api(`/api/cards/${encodeURIComponent(id)}`)
-  return { ...EMPTY_CARD, ...card, socials: card.socials || {} }
+  const data = await rpc('get_card', { p_id: id })
+  if (data) return { card: normalizeCard(data.card), source: 'db' }
+  return { card: normalizeCard(await fetchLegacyCard(id)), source: 'legacy' }
+}
+
+export function recordView(id) {
+  rpc('record_card_view', { p_id: id }).catch(() => {})
 }

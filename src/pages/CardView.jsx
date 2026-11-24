@@ -4,7 +4,7 @@ import QRModal from '../components/QRModal.jsx'
 import Icon from '../components/Icon.jsx'
 import { useToast, shareOrCopy } from '../components/Toast.jsx'
 import { Link, useLocation } from '../router.jsx'
-import { decodeCard, downloadVCard, fetchCard } from '../lib.js'
+import { decodeCard, downloadVCard, fetchCard, recordView } from '../lib.js'
 
 function Missing({ title, text }) {
   return (
@@ -37,7 +37,11 @@ export default function CardView() {
     let alive = true
     setState({ status: 'loading', card: null })
     fetchCard(id)
-      .then((card) => alive && setState({ status: 'done', card }))
+      .then(({ card, source }) => {
+        if (!alive) return
+        setState({ status: 'done', card })
+        if (source === 'db') recordView(id)
+      })
       .catch((e) => alive && setState({ status: e.status === 404 ? 'missing' : 'error', card: null }))
     return () => {
       alive = false
