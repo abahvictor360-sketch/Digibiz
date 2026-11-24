@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Logo from '../components/Logo.jsx'
+import { Nav, Footer } from '../components/SiteChrome.jsx'
 import Icon, { SocialBadge } from '../components/Icon.jsx'
 import BusinessCard, { Avatar } from '../components/BusinessCard.jsx'
 import { Link, navigate } from '../router.jsx'
@@ -8,7 +8,7 @@ import { SAMPLE_CARD, SOCIALS } from '../lib.js'
 const DEMO = { ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } }
 
 const FAQS = [
-  ['Is Digibiz free?', 'Yes. Creating, sharing and saving a card is free forever. Pro adds custom domains, extra themes and lead capture.'],
+  ['Is digibiz free?', 'Yes. Creating, sharing and saving a card is free forever. Pro adds custom domains, extra themes and lead capture.'],
   ['Do the people I share with need an app?', 'No. Your card opens in any browser. They can tap “Save contact” to add you to their phone in one step.'],
   ['Where is my card stored?', 'Your card details are packed into the share link itself, so there is no database holding your data. Your draft is kept in your own browser.'],
   ['Can I update my card after sharing it?', 'Edit it any time and share the new link or QR code. On Pro, a permanent short link always points to your latest version.'],
@@ -19,39 +19,8 @@ const FAQS = [
 const TESTIMONIALS = [
   { quote: 'I handed out 200 paper cards a month at trade fairs. Now it’s one QR on my badge and every lead lands straight in their phone contacts.', name: 'Tunde Bello', role: 'Sales Lead, Kora Logistics' },
   { quote: 'Set it up on my phone in under five minutes. The glass theme gets a comment at every meeting.', name: 'Chioma Eze', role: 'Brand Designer' },
-  { quote: 'Our whole team uses Digibiz. New hires get a card on day one, and nobody reprints anything when titles change.', name: 'Daniel Mensah', role: 'COO, Fieldline' },
+  { quote: 'Our whole team uses digibiz. New hires get a card on day one, and nobody reprints anything when titles change.', name: 'Daniel Mensah', role: 'COO, Fieldline' },
 ]
-
-const PLANS = [
-  { name: 'Starter', m: 0, y: 0, note: 'For trying it out', feats: ['1 digital card', 'QR code & vCard', '5 themes', 'Unlimited shares'], cta: 'Start for free' },
-  { name: 'Pro', m: 6, y: 5, note: 'For professionals', feats: ['3 digital cards', 'Custom short link', 'Lead capture form', 'Premium themes'], cta: 'Go Pro', hot: true },
-  { name: 'Team', m: 19, y: 15, note: 'Up to 10 people', feats: ['10 team cards', 'Shared brand kit', 'Admin dashboard', 'Priority support'], cta: 'Start team trial' },
-]
-
-function Nav() {
-  const [open, setOpen] = useState(false)
-  return (
-    <header className="nav">
-      <div className="container nav-inner">
-        <Logo />
-        <nav className={`nav-links ${open ? 'open' : ''}`} onClick={() => setOpen(false)}>
-          <a href="#features">Features</a>
-          <a href="#how">How it works</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#faq">FAQ</a>
-        </nav>
-        <div className="nav-cta">
-          <Link to="/create" className="btn btn-dark btn-sm">
-            Create card
-          </Link>
-          <button className="nav-burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-            <Icon name={open ? 'close' : 'plus'} size={20} />
-          </button>
-        </div>
-      </div>
-    </header>
-  )
-}
 
 function Hero() {
   return (
@@ -146,8 +115,8 @@ function Features() {
     <section className="section" id="features">
       <div className="container">
         <div className="section-head split">
-          <h2>Why Digibiz?</h2>
-          <p className="muted">Paper cards get lost, go out of date and end up in the bin. A Digibiz card is always current, works on every phone, and turns a handshake into a saved contact.</p>
+          <h2>Why digibiz?</h2>
+          <p className="muted">Paper cards get lost, go out of date and end up in the bin. A digibiz card is always current, works on every phone, and turns a handshake into a saved contact.</p>
         </div>
         <div className="bento">
           <div className="tile tile-editor">
@@ -386,49 +355,6 @@ function AppShowcase() {
   )
 }
 
-function Pricing() {
-  const [yearly, setYearly] = useState(false)
-  return (
-    <section className="section" id="pricing">
-      <div className="container">
-        <div className="section-head center">
-          <h2>Choose your plan</h2>
-          <div className="toggle-row">
-            <span className={!yearly ? 'on' : ''}>Monthly</span>
-            <button className={`toggle ${yearly ? 'on' : ''}`} onClick={() => setYearly((y) => !y)} aria-pressed={yearly} aria-label="Bill yearly" />
-            <span className={yearly ? 'on' : ''}>
-              Yearly <em>save 20%</em>
-            </span>
-          </div>
-        </div>
-        <div className="plans">
-          {PLANS.map((p) => (
-            <div key={p.name} className={`plan ${p.hot ? 'hot' : ''}`}>
-              {p.hot && <span className="plan-badge">Most popular</span>}
-              <h3>{p.name}</h3>
-              <p className="muted">{p.note}</p>
-              <div className="price">
-                ${yearly ? p.y : p.m}
-                <span>/mo</span>
-              </div>
-              <ul>
-                {p.feats.map((f) => (
-                  <li key={f}>
-                    <Icon name="check" size={16} /> {f}
-                  </li>
-                ))}
-              </ul>
-              <Link to="/create" className={`btn btn-block ${p.hot ? 'btn-lime' : 'btn-outline'}`}>
-                {p.cta}
-              </Link>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function Testimonials() {
   const [i, setI] = useState(0)
   const t = TESTIMONIALS[i]
@@ -496,42 +422,6 @@ function Faq() {
   )
 }
 
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="container">
-        <div className="cta-band">
-          <h2>Design. Share. Connect.</h2>
-          <Link to="/create" className="btn btn-lime btn-lg">
-            Create my card <Icon name="arrow" size={18} />
-          </Link>
-        </div>
-        <div className="foot-grid">
-          <div>
-            <Logo />
-            <p className="muted">Smart digital business cards for people who make connections for a living.</p>
-          </div>
-          <div>
-            <h4>Product</h4>
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <Link to="/create">Card editor</Link>
-          </div>
-          <div>
-            <h4>Help</h4>
-            <a href="#faq">FAQ</a>
-            <a href="#how">How it works</a>
-          </div>
-        </div>
-        <div className="foot-bottom">
-          <span>© {new Date().getFullYear()} Digibiz. All rights reserved.</span>
-          <span>Made for networking, not landfill.</span>
-        </div>
-      </div>
-    </footer>
-  )
-}
-
 export default function Landing() {
   return (
     <div className="landing">
@@ -540,7 +430,6 @@ export default function Landing() {
       <Features />
       <How />
       <AppShowcase />
-      <Pricing />
       <Testimonials />
       <Faq />
       <Footer />

@@ -1,4 +1,4 @@
-# Digibiz — Smart Digital Business Cards
+# digibiz — Smart Digital Business Cards
 
 A web app for creating, sharing and saving digital business cards.
 

@@ -14,9 +14,9 @@ export default function CardView() {
   const url = window.location.href
 
   useEffect(() => {
-    document.title = card?.name ? `${card.name} — Digibiz card` : 'Digibiz card'
+    document.title = card?.name ? `${card.name} — digibiz card` : 'digibiz card'
     return () => {
-      document.title = 'Digibiz — Smart Digital Business Cards'
+      document.title = 'digibiz — Smart Digital Business Cards'
     }
   }, [card])
 
@@ -45,7 +45,7 @@ export default function CardView() {
           <span className="logo-mark small">
             <span />
           </span>
-          Make your own free card with <strong>Digibiz</strong>
+          Make your own free card with <strong>digibiz</strong>
           <Icon name="arrow" size={16} />
         </Link>
       </div>
