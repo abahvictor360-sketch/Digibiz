@@ -6,6 +6,7 @@ import { useAuth } from '../auth.js'
 
 const LINKS = [
   { to: '/#features', label: 'Features' },
+  { to: '/#wallet', label: 'Card wallet' },
   { to: '/#how', label: 'How it works' },
   { to: '/pricing', label: 'Pricing' },
   { to: '/contact', label: 'Contact' },

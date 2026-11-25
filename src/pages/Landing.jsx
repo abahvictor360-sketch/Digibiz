@@ -4,12 +4,15 @@ import Icon, { SocialBadge } from '../components/Icon.jsx'
 import BusinessCard, { Avatar } from '../components/BusinessCard.jsx'
 import { Link, navigate } from '../router.jsx'
 import { SAMPLE_CARD, SOCIALS } from '../lib.js'
+import { FREE_FEATURES, PRO_FEATURES, PRICE } from '../config.js'
 
 const DEMO = { ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } }
 
 const FAQS = [
   ['Is digibiz free?', 'Storing the business cards you collect is free, with no limit. Creating and sharing your own digital card needs digibiz Pro, from $5 a month.'],
   ['Can I keep the paper cards people give me?', 'Yes. Snap the front and back, add notes about where you met and tag them. Your card wallet is searchable and exports to your phone contacts or a spreadsheet.'],
+  ['Are the cards in my wallet private?', 'Yes. Only you can see the cards and photos in your wallet. They are stored in your account, not shared with anyone, and you can export or delete them at any time.'],
+  ['What happens if I stop paying for Pro?', 'Your published cards go offline, so their links, QR codes and NFC cards show that the card isn’t available. Nothing is deleted: resubscribe and they come straight back. Your wallet stays free either way.'],
   ['Do the people I share with need an app?', 'No. Your card opens in any browser. They can tap “Save contact” to add you to their phone in one step.'],
   ['Where is my card stored?', 'When you press Publish, your card is saved securely so your short link, QR code and NFC card always show your latest details. Only you can edit it, from any device you sign in on.'],
   ['Can I update my card after sharing it?', 'Yes. Your link never changes. Edit your card, press Publish, and everyone with your link, QR code or NFC card sees the update.'],
@@ -30,7 +33,7 @@ function Hero() {
       <div className="container hero-grid">
         <div className="hero-copy">
           <span className="eyebrow">
-            <span className="eyebrow-dot" /> Digital business cards
+            <span className="eyebrow-dot" /> Digital cards + free card wallet
           </span>
           <h1>
             Smart is your
@@ -88,7 +91,7 @@ function Hero() {
             <Icon name="bolt" size={16} /> NFC ready
           </div>
           <div className="float-chip chip-c">
-            <Icon name="download" size={16} /> Saved to contacts
+            <Icon name="card" size={16} /> Stored in your wallet
           </div>
           <Icon name="sparkle" size={30} className="spark s1" />
           <Icon name="sparkle" size={18} className="spark s2" />
@@ -101,7 +104,7 @@ function Hero() {
         <div className="ribbon-track">
           {Array.from({ length: 2 }).map((_, k) => (
             <span key={k}>
-              {['SHARE INSTANTLY', 'DIGITAL CARD', 'NO MORE PAPER', 'ONE TAP SAVE', 'QR + NFC', 'DIGITAL CARD'].map((t) => (
+              {['SHARE INSTANTLY', 'DIGITAL CARD', 'FREE CARD WALLET', 'ONE TAP SAVE', 'QR + NFC', 'NEVER LOSE A CARD'].map((t) => (
                 <span key={t + k} className="ribbon-item">
                   {t} <Icon name="sparkle" size={18} />
                 </span>
@@ -120,7 +123,7 @@ function Features() {
       <div className="container">
         <div className="section-head split">
           <h2>Why digibiz?</h2>
-          <p className="muted">Paper cards get lost, go out of date and end up in the bin. A digibiz card is always current, works on every phone, and turns a handshake into a saved contact.</p>
+          <p className="muted">Paper cards get lost, go out of date and end up in the bin. A digibiz card is always current and works on every phone, and the cards you receive live safely in your wallet.</p>
         </div>
         <div className="bento">
           <div className="tile tile-editor">
@@ -182,7 +185,7 @@ function How() {
   const steps = [
     { n: '01', t: 'Add your details', d: 'Name, title, phone, email, website and the social profiles you want people to find.', v: 'form' },
     { n: '02', t: 'Make it yours', d: 'Upload a photo and choose from glass, lime, midnight and more. No design skills needed.', v: 'theme' },
-    { n: '03', t: 'Share anywhere', d: 'Send your link, show your QR code, or write it to an NFC tag. Contacts save you in one tap.', v: 'share' },
+    { n: '03', t: 'Publish and share', d: `Publish with digibiz Pro ($${PRICE.month}/month), then send your link, show your QR code, or write it to an NFC card. People save you in one tap.`, v: 'share' },
   ]
   return (
     <section className="section" id="how">
@@ -191,7 +194,7 @@ function How() {
           <span className="eyebrow">
             <span className="eyebrow-dot" /> How it works
           </span>
-          <h2>Three steps to your new card</h2>
+          <h2>Three steps to your own digital card</h2>
         </div>
         <div className="steps">
           {steps.map((s, i) => (
@@ -250,6 +253,134 @@ function How() {
   )
 }
 
+const WALLET_POINTS = [
+  { icon: 'upload', t: 'Snap the front and back', d: 'Take a photo the moment you’re handed a card. The paper can go, the details stay.' },
+  { icon: 'edit', t: 'Remember the conversation', d: 'Add notes, where and when you met, tags and favourites.' },
+  { icon: 'search', t: 'Find anyone in seconds', d: 'Search names, companies, notes and tags, or filter by event.' },
+  { icon: 'download', t: 'Take it with you', d: 'Export to your phone’s contacts (vCard) or a spreadsheet (CSV) whenever you like.' },
+]
+
+const WALLET_DEMO = [
+  { n: 'Amara Okafor', c: 'Head of Sales · Kora', tags: ['client', 'tech-expo'], fav: true, tone: 'a' },
+  { n: 'Liam Chen', c: 'Architect · Studio Nine', tags: ['partner'], tone: 'b' },
+  { n: 'Sofia Reyes', c: 'Founder · Brightside', tags: ['tech-expo'], tone: 'c' },
+]
+
+function WalletSection() {
+  return (
+    <section className="section" id="wallet">
+      <div className="container wallet-promo">
+        <div className="wallet-promo-copy">
+          <span className="eyebrow">
+            <span className="eyebrow-dot" /> Free, with no limit
+          </span>
+          <h2>Never lose a business card again</h2>
+          <p className="muted">Every card you’re handed goes into your digibiz wallet: photographed, searchable and backed up to your account. It’s free for everyone.</p>
+          <div className="wp-points">
+            {WALLET_POINTS.map((p) => (
+              <div key={p.t} className="wp-point">
+                <span className="wp-ic">
+                  <Icon name={p.icon} size={18} />
+                </span>
+                <div>
+                  <b>{p.t}</b>
+                  <p className="muted">{p.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Link to="/login?mode=signup&next=/wallet" className="btn btn-dark btn-lg">
+            Start my free wallet <Icon name="arrow" size={18} />
+          </Link>
+        </div>
+
+        <div className="wp-visual" aria-hidden="true">
+          <div className="wp-search">
+            <Icon name="search" size={16} /> tech-expo
+          </div>
+          <div className="wp-chips">
+            <span className="on">All 48</span>
+            <span>client</span>
+            <span>tech-expo</span>
+            <span>partner</span>
+          </div>
+          <div className="wp-list">
+            {WALLET_DEMO.map((d) => (
+              <div key={d.n} className="wp-item">
+                <div className={`wp-paper tone-${d.tone}`}>
+                  <span className="wp-logo" />
+                  <span className="wp-line" />
+                  <span className="wp-line short" />
+                  {d.fav && <span className="wp-fav">★</span>}
+                </div>
+                <div className="wp-info">
+                  <b>{d.n}</b>
+                  <small>{d.c}</small>
+                  <span className="wp-tags">
+                    {d.tags.map((t) => (
+                      <i key={t}>{t}</i>
+                    ))}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="float-chip wp-chip lime">
+            <Icon name="download" size={16} /> Export to contacts
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Plans() {
+  const plans = [
+    { name: 'Free', price: '$0', note: 'Your business card wallet', sub: 'Free forever', feats: FREE_FEATURES, cta: 'Start my free wallet', to: '/login?mode=signup&next=/wallet' },
+    { name: 'Pro', price: `$${PRICE.month}`, note: 'Your own digital card', sub: `Billed monthly, or $${PRICE.year}/month billed yearly`, feats: PRO_FEATURES, cta: 'Go Pro', to: '/billing', hot: true },
+  ]
+  return (
+    <section className="section" id="plans">
+      <div className="container">
+        <div className="section-head center">
+          <span className="eyebrow">
+            <span className="eyebrow-dot" /> Pricing
+          </span>
+          <h2>Free to collect. Pro to share.</h2>
+          <p className="muted">Keep every card you receive for free. Upgrade when you want a digital card of your own. Cancel any time.</p>
+        </div>
+        <div className="plans two">
+          {plans.map((p) => (
+            <div key={p.name} className={`plan ${p.hot ? 'hot' : ''}`}>
+              {p.hot && <span className="plan-badge">For your own card</span>}
+              <h3>{p.name}</h3>
+              <p className="muted">{p.note}</p>
+              <div className="price">
+                {p.price}
+                <span>/mo</span>
+              </div>
+              <p className="price-note">{p.sub}</p>
+              <ul>
+                {p.feats.map((f) => (
+                  <li key={f}>
+                    <Icon name="check" size={16} /> {f}
+                  </li>
+                ))}
+              </ul>
+              <Link to={p.to} className={`btn btn-block ${p.hot ? 'btn-lime' : 'btn-outline'}`}>
+                {p.cta}
+              </Link>
+            </div>
+          ))}
+        </div>
+        <p className="center plans-more">
+          <Link to="/pricing" className="inline-link">Compare plans in detail</Link>
+        </p>
+      </div>
+    </section>
+  )
+}
+
 function AppShowcase() {
   return (
     <section className="section">
@@ -257,7 +388,7 @@ function AppShowcase() {
         <div className="showcase">
           <div className="showcase-copy">
             <h2>Your network, in your pocket</h2>
-            <p>Manage your card from any phone. See your links, update your details and share in seconds, wherever the conversation starts.</p>
+            <p>Manage your card and your wallet from any phone. Update your details, share in seconds, and save the cards you’re handed before they get lost.</p>
             <Link to="/create" className="btn btn-lime btn-lg">
               Build my card <Icon name="arrow" size={18} />
             </Link>
@@ -432,7 +563,9 @@ export default function Landing() {
       <Nav />
       <Hero />
       <Features />
+      <WalletSection />
       <How />
+      <Plans />
       <AppShowcase />
       <Testimonials />
       <Faq />
