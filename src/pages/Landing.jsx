@@ -8,7 +8,7 @@ import { SAMPLE_CARD, SOCIALS } from '../lib.js'
 const DEMO = { ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } }
 
 const FAQS = [
-  ['Is digibiz free?', 'Yes. Creating, sharing and saving a card is free forever. Pro adds custom domains, extra themes and lead capture.'],
+  ['Is digibiz free?', 'Your wallet is free forever: save, organise and search every business card you collect. Creating and publishing your own card is part of Pro, billed monthly.'],
   ['Do the people I share with need an app?', 'No. Your card opens in any browser. They can tap “Save contact” to add you to their phone in one step.'],
   ['Where is my card stored?', 'When you press Publish, your card is saved securely so your short link, QR code and NFC card always show your latest details. Only the browser you published from can edit it.'],
   ['Can I update my card after sharing it?', 'Yes. Your link never changes. Edit your card, press Publish, and everyone with your link, QR code or NFC card sees the update.'],
@@ -41,7 +41,7 @@ function Hero() {
           <p className="lead">Create a beautiful card in minutes. Share it with a link, QR code or NFC tap, and let people save your contact in one touch.</p>
           <div className="hero-ctas">
             <Link to="/create" className="btn btn-dark btn-lg">
-              Get started, it’s free
+              Get started
             </Link>
             <a href="#how" className="btn btn-ghost btn-lg">
               <span className="play">
@@ -97,8 +97,8 @@ function Hero() {
         <div className="ribbon-track">
           {Array.from({ length: 2 }).map((_, k) => (
             <span key={k}>
-              {['SHARE INSTANTLY', 'DIGITAL CARD', 'NO MORE PAPER', 'ONE TAP SAVE', 'QR + NFC', 'DIGITAL CARD'].map((t) => (
-                <span key={t + k} className="ribbon-item">
+              {['SHARE INSTANTLY', 'DIGITAL CARD', 'NO MORE PAPER', 'ONE TAP SAVE', 'QR + NFC', 'DIGITAL CARD'].map((t, i) => (
+                <span key={`${k}-${i}`} className="ribbon-item">
                   {t} <Icon name="sparkle" size={18} />
                 </span>
               ))}
@@ -240,6 +240,52 @@ function How() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function WalletSection() {
+  const people = [
+    { n: 'Sarah Chen', r: 'Product Lead · Lumen', t: 'client', f: 'f1' },
+    { n: 'Kofi Mensah', r: 'Founder · Brightpath', t: 'expo 2026', f: 'f2' },
+    { n: 'Priya Patel', r: 'Partner · Orbit Legal', t: 'legal', f: 'f3' },
+  ]
+  return (
+    <section className="section" id="wallet">
+      <div className="container">
+        <div className="wallet-promo">
+          <div className="wallet-promo-copy">
+            <span className="eyebrow">
+              <span className="eyebrow-dot" /> Free forever
+            </span>
+            <h2>A wallet for every card you collect</h2>
+            <p>Scan a QR code, tap an NFC card or snap a paper card. digibiz keeps them all in one place, searchable, with your notes, on every device. Saved digibiz cards update themselves when their owner changes jobs.</p>
+            <Link to="/wallet" className="btn btn-dark btn-lg">
+              Open free wallet <Icon name="arrow" size={18} />
+            </Link>
+          </div>
+          <div className="wallet-mock" aria-hidden="true">
+            <div className="wallet-mock-search">
+              <Icon name="search" size={16} /> Search 48 cards…
+            </div>
+            {people.map((p) => (
+              <div className="wallet-mock-row" key={p.n}>
+                <span className={`face ${p.f}`}>{p.n.split(' ').map((w) => w[0]).join('')}</span>
+                <span>
+                  <b>{p.n}</b>
+                  <small>{p.r}</small>
+                </span>
+                <i>#{p.t}</i>
+              </div>
+            ))}
+            <div className="wallet-mock-add">
+              <span><Icon name="qr" size={16} /> Scan</span>
+              <span><Icon name="nfc" size={16} /> Tap</span>
+              <span><Icon name="upload" size={16} /> Snap</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -429,6 +475,7 @@ export default function Landing() {
       <Hero />
       <Features />
       <How />
+      <WalletSection />
       <AppShowcase />
       <Testimonials />
       <Faq />

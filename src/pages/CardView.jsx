@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import BusinessCard from '../components/BusinessCard.jsx'
 import QRModal from '../components/QRModal.jsx'
 import Icon from '../components/Icon.jsx'
 import { useToast, shareOrCopy } from '../components/Toast.jsx'
-import { Link, useLocation } from '../router.jsx'
+import { Link, navigate, useLocation } from '../router.jsx'
+import { loginUrl, useAuth } from '../auth.js'
+import { saveCardId } from '../wallet.js'
 import { decodeCard, downloadVCard, fetchCard } from '../lib.js'
 
 function Missing({ title, text }) {
@@ -31,6 +33,32 @@ export default function CardView() {
   const [state, setState] = useState({ status: id ? 'loading' : 'done', card: null })
   const [qr, setQr] = useState(false)
   const [toast, showToast] = useToast()
+  const { user, loading: authLoading } = useAuth()
+  const [saved, setSaved] = useState('')
+  const autoSaved = useRef(false)
+
+  const saveToWallet = async () => {
+    if (!user) return navigate(loginUrl(`/c/${id}?save=1`))
+    setSaved('saving')
+    try {
+      const res = await saveCardId(id)
+      setSaved('saved')
+      showToast(res.duplicate ? 'Already in your wallet' : 'Saved to your wallet')
+    } catch (e) {
+      setSaved('')
+      showToast(e.message)
+    }
+  }
+
+  // Coming back from sign-in with ?save=1: save automatically.
+  useEffect(() => {
+    if (!id || authLoading || !user || autoSaved.current) return
+    if (new URLSearchParams(window.location.search).get('save') !== '1') return
+    autoSaved.current = true
+    window.history.replaceState({}, '', `/c/${id}`)
+    saveToWallet()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, authLoading, user])
 
   useEffect(() => {
     if (!id) return
@@ -71,11 +99,17 @@ export default function CardView() {
     <div className={`card-page theme-bg-${card.theme}`}>
       <div className="card-page-inner">
         <BusinessCard card={card} tilt onSave={() => downloadVCard(card, url)} onShare={() => shareOrCopy(url, card.name, showToast)} onQR={() => setQr(true)} />
+        {id && user?.cardId !== id && (
+          <button className="btn btn-lime btn-lg save-wallet" onClick={saveToWallet} disabled={saved === 'saving' || saved === 'saved'}>
+            {saved === 'saving' ? <span className="spinner" /> : <Icon name={saved === 'saved' ? 'check' : 'plus'} size={18} />}
+            {saved === 'saved' ? 'In your wallet' : 'Save to my wallet'}
+          </button>
+        )}
         <Link to="/create" className="made-with">
           <span className="logo-mark small">
             <span />
           </span>
-          Make your own free card with <strong>digibiz</strong>
+          Get your own card with <strong>digibiz</strong>
           <Icon name="arrow" size={16} />
         </Link>
       </div>

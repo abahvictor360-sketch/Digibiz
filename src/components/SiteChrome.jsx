@@ -2,10 +2,12 @@ import { useState } from 'react'
 import Logo from './Logo.jsx'
 import Icon from './Icon.jsx'
 import { Link, useLocation } from '../router.jsx'
+import { loginUrl, useAuth } from '../auth.js'
 
 const LINKS = [
   { to: '/#features', label: 'Features' },
   { to: '/#how', label: 'How it works' },
+  { to: '/wallet', label: 'Wallet' },
   { to: '/pricing', label: 'Pricing' },
   { to: '/contact', label: 'Contact' },
 ]
@@ -13,6 +15,7 @@ const LINKS = [
 export function Nav() {
   const [open, setOpen] = useState(false)
   const { path } = useLocation()
+  const { user, loading } = useAuth()
   return (
     <header className="nav">
       <div className="container nav-inner">
@@ -31,6 +34,17 @@ export function Nav() {
           )}
         </nav>
         <div className="nav-cta">
+          {!loading &&
+            (user ? (
+              <Link to="/account" className="nav-account" aria-label="Your account" title={user.email}>
+                {(user.name || user.email).trim()[0].toUpperCase()}
+                {user.pro && <span className="nav-pro">Pro</span>}
+              </Link>
+            ) : (
+              <Link to={loginUrl(path === '/' ? '/wallet' : path)} className="btn btn-ghost btn-sm hide-xs">
+                Sign in
+              </Link>
+            ))}
           <Link to="/create" className="btn btn-dark btn-sm">
             Create card
           </Link>
@@ -65,6 +79,11 @@ export function Footer({ cta = true }) {
             <a href="/#features">Features</a>
             <Link to="/pricing">Pricing</Link>
             <Link to="/create">Card editor</Link>
+          </div>
+          <div>
+            <h4>Account</h4>
+            <Link to="/wallet">Wallet</Link>
+            <Link to="/account">Your account</Link>
           </div>
           <div>
             <h4>Company</h4>

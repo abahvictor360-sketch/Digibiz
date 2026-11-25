@@ -8,9 +8,12 @@ function localApi() {
     process.env.LOCAL_STORE_DIR ||= path.resolve('.local-store')
     server.middlewares.use(async (req, res, next) => {
       const url = new URL(req.url, 'http://x')
-      if (!url.pathname.startsWith('/api/cards')) return next()
+      if (!url.pathname.startsWith('/api/')) return next()
       const parts = url.pathname.split('/').filter(Boolean)
-      const file = parts.length > 2 ? './api/cards/[id].js' : './api/cards/index.js'
+      let file
+      if (parts[1] === 'cards') file = parts.length > 2 ? './api/cards/[id].js' : './api/cards/index.js'
+      else if (['auth', 'billing', 'wallet'].includes(parts[1]) && parts.length === 2) file = `./api/${parts[1]}.js`
+      else return next()
       const mod = await import(path.resolve(file) + `?t=${Date.now()}`)
       await mod.default(req, res)
     })

@@ -7,6 +7,7 @@ import { Link } from '../router.jsx'
 import { usePublish } from '../usePublish.js'
 import { useInstall, isStandalone } from '../useInstall.js'
 import { PublishStatus } from './Editor.jsx'
+import UpgradeModal from '../components/UpgradeModal.jsx'
 import { SAMPLE_CARD, cardLink, fetchCard, loadDraft } from '../lib.js'
 import { downloadFace, renderFace } from '../printCard.js'
 
@@ -121,7 +122,8 @@ export default function Nfc() {
   const [draft] = useState(() => loadDraft() || { ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } })
   const [remote, setRemote] = useState(null)
   const [toast, showToast] = useToast()
-  const { pub, dirty, busy, error, publish, clearError } = usePublish(draft)
+  const { pub, dirty, busy, error, publish, clearError, need, clearNeed, user: authUser, authLoading } = usePublish(draft)
+  const user = authLoading ? undefined : authUser
   const [handoffQr, setHandoffQr] = useState('')
   const [side, setSide] = useState('front')
   const install = useInstall()
@@ -195,7 +197,7 @@ export default function Nfc() {
             <h2>Your permanent link</h2>
             {!paramId && (
               <div className="nfc-pubrow">
-                <PublishStatus pub={pub} dirty={dirty} busy={busy} />
+                <PublishStatus pub={pub} dirty={dirty} busy={busy} user={user} />
                 {(!pub || dirty) && (
                   <button className="btn btn-lime btn-sm" onClick={() => publish()} disabled={busy}>
                     <Icon name="send" size={16} /> {pub ? 'Publish changes' : 'Publish my card'}
@@ -353,6 +355,7 @@ export default function Nfc() {
           <img src={faces.back} alt="" />
         </div>
       )}
+      <UpgradeModal need={need} onClose={clearNeed} />
       {toast}
     </div>
   )

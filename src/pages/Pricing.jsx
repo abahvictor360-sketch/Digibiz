@@ -1,39 +1,33 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Nav, Footer } from '../components/SiteChrome.jsx'
 import Icon from '../components/Icon.jsx'
+import { GoProButton, useBilling } from '../components/UpgradeModal.jsx'
 import { Link } from '../router.jsx'
-
-const PLANS = [
-  { name: 'Starter', m: 0, y: 0, note: 'For trying it out', feats: ['1 digital card', 'QR code & vCard', '5 themes', 'Unlimited shares'], cta: 'Start for free' },
-  { name: 'Pro', m: 6, y: 5, note: 'For professionals', feats: ['3 digital cards', 'Custom short link', 'Lead capture form', 'Premium themes'], cta: 'Go Pro', hot: true },
-  { name: 'Team', m: 19, y: 15, note: 'Up to 10 people', feats: ['10 team cards', 'Shared brand kit', 'Admin dashboard', 'Priority support'], cta: 'Start team trial' },
-]
+import { formatPrice, loginUrl, useAuth } from '../auth.js'
 
 const COMPARE = [
-  ['Cards', [
-    ['Digital cards', '1', '3', '10'],
-    ['Unlimited sharing', true, true, true],
-    ['QR code download', true, true, true],
-    ['Save-to-contacts (vCard)', true, true, true],
+  ['Wallet', [
+    ['Save business cards', 'Unlimited', 'Unlimited'],
+    ['Scan QR codes & tap NFC cards', true, true],
+    ['Paper cards with photos', true, true],
+    ['Notes, tags & search', true, true],
+    ['Synced on every device', true, true],
   ]],
-  ['Design', [
-    ['Themes', '5', '5 + premium', '5 + premium'],
-    ['Remove digibiz badge', false, true, true],
-    ['Shared brand kit', false, false, true],
-  ]],
-  ['Growth', [
-    ['Custom short link', false, true, true],
-    ['Lead capture form', false, true, true],
-    ['Admin dashboard', false, false, true],
-    ['Priority support', false, false, true],
+  ['Your own card', [
+    ['Design your card', true, true],
+    ['Publish to a permanent link', false, true],
+    ['QR code & save-to-contacts', false, true],
+    ['Write to NFC cards', false, true],
+    ['Print-ready card designs', false, true],
   ]],
 ]
 
 const FAQS = [
-  ['Is the Starter plan really free?', 'Yes. Starter is free forever, and no card details are needed. Create your card, share it and let people save your contact.'],
-  ['Can I switch plans later?', 'Any time. Upgrade or downgrade from your account and the change applies from your next billing date.'],
-  ['How does yearly billing work?', 'Pay for 12 months up front and save about 20% compared with paying monthly.'],
-  ['Do you offer plans for larger teams?', 'Yes. For more than 10 people, get in touch and we’ll put together a plan for your organisation.'],
+  ['Is the wallet really free?', 'Yes. Saving, organising and searching business cards is free forever, with no payment details needed.'],
+  ['What do I get with Pro?', 'Pro lets you publish your own digital business card to a permanent link, share it by QR code or NFC, and download print-ready designs. Edit it anytime and everyone sees the update.'],
+  ['Can I cancel anytime?', 'Yes. Cancel from your account in two clicks. Pro stays active until the end of the month you’ve paid for, and your wallet stays free.'],
+  ['What happens to my card if I cancel?', 'Your published card stops being editable and you can’t publish changes. Resume Pro anytime to pick up where you left off.'],
+  ['Do you offer plans for teams?', 'Yes. For cards for your whole team with shared branding, get in touch and we’ll put together a plan.'],
 ]
 
 function Cell({ v }) {
@@ -43,8 +37,12 @@ function Cell({ v }) {
 }
 
 export default function Pricing() {
-  const [yearly, setYearly] = useState(false)
   const [open, setOpen] = useState(0)
+  const cfg = useBilling()
+  const { user } = useAuth()
+  const price = cfg ? formatPrice(cfg.priceCents, cfg.currency) : '$6'
+  const cancelled = new URLSearchParams(window.location.search).get('checkout') === 'cancelled'
+
   useEffect(() => {
     document.title = 'Pricing | digibiz'
     return () => (document.title = 'digibiz | Smart Digital Business Cards')
@@ -60,45 +58,60 @@ export default function Pricing() {
             <span className="eyebrow-dot" /> Pricing
           </span>
           <h1>
-            Simple pricing, <span className="ul">no paper</span>
+            Collect free. <span className="ul">Create with Pro.</span>
           </h1>
-          <p className="lead">Start free and upgrade when you need more cards, your own link or lead capture. Cancel any time.</p>
-          <div className="toggle-row">
-            <span className={!yearly ? 'on' : ''}>Monthly</span>
-            <button className={`toggle ${yearly ? 'on' : ''}`} onClick={() => setYearly((y) => !y)} aria-pressed={yearly} aria-label="Bill yearly" />
-            <span className={yearly ? 'on' : ''}>
-              Yearly <em>save 20%</em>
-            </span>
-          </div>
+          <p className="lead">Keep every business card you’re given in your free wallet. Go Pro when you’re ready to publish your own.</p>
+          {cancelled && <p className="notice">Checkout was cancelled. You haven’t been charged.</p>}
         </div>
       </section>
 
       <section className="section tight-top">
         <div className="container">
-          <div className="plans">
-            {PLANS.map((p) => (
-              <div key={p.name} className={`plan ${p.hot ? 'hot' : ''}`}>
-                {p.hot && <span className="plan-badge">Most popular</span>}
-                <h3>{p.name}</h3>
-                <p className="muted">{p.note}</p>
-                <div className="price">
-                  ${yearly ? p.y : p.m}
-                  <span>/mo</span>
-                </div>
-                <p className="price-note">{p.m === 0 ? 'Free forever' : yearly ? `Billed $${p.y * 12} yearly` : 'Billed monthly'}</p>
-                <ul>
-                  {p.feats.map((f) => (
-                    <li key={f}>
-                      <Icon name="check" size={16} /> {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link to={p.m === 0 ? '/create' : '/contact'} className={`btn btn-block ${p.hot ? 'btn-lime' : 'btn-outline'}`}>
-                  {p.cta}
-                </Link>
+          <div className="plans two">
+            <div className="plan">
+              <h3>Wallet</h3>
+              <p className="muted">For everyone you meet</p>
+              <div className="price">
+                $0<span>/forever</span>
               </div>
-            ))}
+              <ul>
+                {['Save unlimited business cards', 'Scan QR codes & tap NFC cards', 'Snap paper cards', 'Notes, tags & search', 'Synced across devices'].map((f) => (
+                  <li key={f}>
+                    <Icon name="check" size={16} /> {f}
+                  </li>
+                ))}
+              </ul>
+              <Link to={user ? '/wallet' : `${loginUrl('/wallet')}&mode=signup`} className="btn btn-block btn-outline">
+                {user ? 'Open my wallet' : 'Create free wallet'}
+              </Link>
+            </div>
+            <div className="plan hot">
+              <span className="plan-badge">Create your card</span>
+              <h3>Pro</h3>
+              <p className="muted">Everything in Wallet, plus</p>
+              <div className="price">
+                {price}
+                <span>/month</span>
+              </div>
+              <ul>
+                {['Publish your own digital card', 'Permanent link + QR code', 'Write it to NFC cards', 'Print-ready card designs', 'Edit anytime, links never change'].map((f) => (
+                  <li key={f}>
+                    <Icon name="check" size={16} /> {f}
+                  </li>
+                ))}
+              </ul>
+              {user?.pro ? (
+                <Link to="/create" className="btn btn-block btn-lime">
+                  Edit my card
+                </Link>
+              ) : (
+                <GoProButton label="Go Pro" />
+              )}
+            </div>
           </div>
+          <p className="muted center teams-note">
+            Need cards for your whole team? <Link to="/contact" className="inline-link">Talk to us</Link>.
+          </p>
         </div>
       </section>
 
@@ -112,25 +125,21 @@ export default function Pricing() {
               <thead>
                 <tr>
                   <th scope="col"><span className="sr-only">Feature</span></th>
-                  {PLANS.map((p) => (
-                    <th scope="col" key={p.name} className={p.hot ? 'hot' : ''}>{p.name}</th>
-                  ))}
+                  <th scope="col">Wallet</th>
+                  <th scope="col" className="hot">Pro</th>
                 </tr>
               </thead>
               <tbody>
                 {COMPARE.map(([group, rows]) => (
                   <Fragment key={group}>
                     <tr className="cmp-group">
-                      <th colSpan={4} scope="colgroup">{group}</th>
+                      <th colSpan={3} scope="colgroup">{group}</th>
                     </tr>
-                    {rows.map(([label, ...vals]) => (
+                    {rows.map(([label, free, pro]) => (
                       <tr key={label}>
                         <th scope="row">{label}</th>
-                        {vals.map((v, k) => (
-                          <td key={k} className={PLANS[k].hot ? 'hot' : ''}>
-                            <Cell v={v} />
-                          </td>
-                        ))}
+                        <td><Cell v={free} /></td>
+                        <td className="hot"><Cell v={pro} /></td>
                       </tr>
                     ))}
                   </Fragment>

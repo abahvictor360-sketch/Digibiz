@@ -184,39 +184,11 @@ export function saveDraft(card) {
   }
 }
 
-// ---------- Publishing (short, permanent links) ----------
-const PUB_KEY = 'digibiz:pub'
-
-export function loadPub() {
-  try {
-    const raw = localStorage.getItem(PUB_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
-function savePub(pub) {
-  try {
-    localStorage.setItem(PUB_KEY, JSON.stringify(pub))
-  } catch {
-    /* ignore */
-  }
-}
-export function forgetPub() {
-  try {
-    localStorage.removeItem(PUB_KEY)
-  } catch {
-    /* ignore */
-  }
-}
-
-export const cardFingerprint = (card) => JSON.stringify(card)
-export const cardLink = (id) => `${window.location.origin}/c/${id}`
-
-async function api(path, opts) {
+// ---------- API ----------
+export async function api(path, opts) {
   let res
   try {
-    res = await fetch(path, { ...opts, headers: { 'Content-Type': 'application/json', ...(opts?.headers || {}) } })
+    res = await fetch(path, { credentials: 'same-origin', ...opts, headers: { 'Content-Type': 'application/json', ...(opts?.headers || {}) } })
   } catch {
     throw new Error('You appear to be offline. Check your connection and try again.')
   }
@@ -234,24 +206,36 @@ async function api(path, opts) {
   return data
 }
 
-// Creates the card on first publish, updates it afterwards. Returns the pub record.
-export async function publishCard(card) {
-  const pub = loadPub()
-  if (pub?.id && pub?.token) {
-    try {
-      await api(`/api/cards/${pub.id}`, { method: 'PUT', body: JSON.stringify({ card }), headers: { Authorization: `Bearer ${pub.token}` } })
-      const next = { ...pub, fingerprint: cardFingerprint(card), publishedAt: new Date().toISOString() }
-      savePub(next)
-      return next
-    } catch (e) {
-      if (e.status !== 404 && e.status !== 403) throw e
-      // Card gone or key lost: fall through and create a new one.
-    }
+// ---------- Publishing (short, permanent links, one card per account) ----------
+const PUB_KEY = 'digibiz:published'
+
+export const cardFingerprint = (card) => JSON.stringify(card)
+export const cardLink = (id) => `${window.location.origin}/c/${id}`
+
+// Remembers which version of the card was last published, so the editor can show "Unpublished changes".
+export function loadPub(cardId) {
+  if (!cardId) return null
+  try {
+    const raw = JSON.parse(localStorage.getItem(PUB_KEY) || 'null')
+    return raw?.id === cardId ? raw : { id: cardId, fingerprint: null }
+  } catch {
+    return { id: cardId, fingerprint: null }
   }
-  const { id, token } = await api('/api/cards', { method: 'POST', body: JSON.stringify({ card }) })
-  const next = { id, token, fingerprint: cardFingerprint(card), publishedAt: new Date().toISOString() }
-  savePub(next)
-  return next
+}
+function savePub(pub) {
+  try {
+    localStorage.setItem(PUB_KEY, JSON.stringify(pub))
+  } catch {
+    /* ignore */
+  }
+}
+
+// Publishes the signed-in user's card. Errors carry .status (401 signed out, 402 needs Pro).
+export async function publishCard(card) {
+  const { id, user } = await api('/api/cards', { method: 'POST', body: JSON.stringify({ card }) })
+  const pub = { id, fingerprint: cardFingerprint(card), publishedAt: new Date().toISOString() }
+  savePub(pub)
+  return { pub, user }
 }
 
 export async function fetchCard(id) {

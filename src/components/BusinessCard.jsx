@@ -12,7 +12,7 @@ export function Avatar({ card, size = 88 }) {
   )
 }
 
-export default function BusinessCard({ card, tilt = false, onSave, onShare, onQR }) {
+export default function BusinessCard({ card, tilt = false, onSave, onShare, onQR, hideActions = false }) {
   const ref = useRef(null)
   const socials = SOCIALS.filter((s) => card.socials?.[s.key])
 
@@ -79,6 +79,7 @@ export default function BusinessCard({ card, tilt = false, onSave, onShare, onQR
         </div>
       )}
 
+      {!hideActions && (
       <div className="bc-actions">
         <button type="button" className="bc-btn bc-btn-primary" onClick={onSave}>
           <Icon name="download" size={16} /> Save contact
@@ -90,6 +91,7 @@ export default function BusinessCard({ card, tilt = false, onSave, onShare, onQR
           <Icon name="qr" size={18} />
         </button>
       </div>
+      )}
     </div>
   )
 }

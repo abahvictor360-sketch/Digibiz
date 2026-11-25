@@ -6,6 +6,7 @@ import QRModal from '../components/QRModal.jsx'
 import { useToast, shareOrCopy } from '../components/Toast.jsx'
 import { navigate, Link } from '../router.jsx'
 import { usePublish } from '../usePublish.js'
+import UpgradeModal from '../components/UpgradeModal.jsx'
 import { useInstall } from '../useInstall.js'
 import { EMPTY_CARD, SAMPLE_CARD, SOCIALS, THEMES, cardLink, downloadVCard, loadDraft, resizeImage, saveDraft } from '../lib.js'
 
@@ -21,7 +22,9 @@ function Field({ label, children, hint }) {
 
 const sample = () => ({ ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } })
 
-export function PublishStatus({ pub, dirty, busy }) {
+export function PublishStatus({ pub, dirty, busy, user }) {
+  if (user === null) return <span className="pub-status off">Not signed in</span>
+  if (user && !user.pro) return <span className="pub-status off">Free plan</span>
   if (busy) return <span className="pub-status busy"><span className="spinner" /> Publishing…</span>
   if (!pub) return <span className="pub-status off">Not published</span>
   if (dirty) return <span className="pub-status warn">Unpublished changes</span>
@@ -33,7 +36,8 @@ export default function Editor() {
   const [qr, setQr] = useState('')
   const [tab, setTab] = useState('edit')
   const [toast, showToast] = useToast()
-  const { pub, link, dirty, busy, error, publish, clearError } = usePublish(card)
+  const { pub, link, dirty, busy, error, publish, clearError, need, clearNeed, user: authUser, authLoading } = usePublish(card)
+  const user = authLoading ? undefined : authUser
   const install = useInstall()
 
   useEffect(() => {
@@ -95,7 +99,7 @@ export default function Editor() {
         </div>
         <div className="editor-bar-actions">
           <span className="hide-sm">
-            <PublishStatus pub={pub} dirty={dirty} busy={busy} />
+            <PublishStatus pub={pub} dirty={dirty} busy={busy} user={user} />
           </span>
           {install && (
             <button className="btn btn-outline btn-sm" onClick={install}>
@@ -215,7 +219,7 @@ export default function Editor() {
             <div className="preview-label">
               <span className="dot-live" /> Live preview
               <span className="preview-status">
-                <PublishStatus pub={pub} dirty={dirty} busy={busy} />
+                <PublishStatus pub={pub} dirty={dirty} busy={busy} user={user} />
               </span>
             </div>
             <BusinessCard
@@ -247,12 +251,15 @@ export default function Editor() {
               </button>
             </div>
             <p className="field-hint center">
-              Your link never changes. Edit and press Publish, and everyone with your link, QR code or NFC card sees the update. Only this browser can edit this card.
+              {user?.pro
+                ? 'Your link never changes. Edit and press Publish, and everyone with your link, QR code or NFC card sees the update.'
+                : 'Design your card for free. Publishing it to a permanent link, QR code and NFC card needs digibiz Pro.'}
             </p>
           </div>
         </aside>
       </main>
       {qr && <QRModal url={qr} name={card.name} onClose={() => setQr('')} />}
+      <UpgradeModal need={need} onClose={clearNeed} />
       {toast}
     </div>
   )

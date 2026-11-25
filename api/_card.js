@@ -13,14 +13,14 @@ export class HttpError extends Error {
   }
 }
 
-export function cleanCard(input) {
+export function cleanCard(input, { requireName = true } = {}) {
   if (!input || typeof input !== 'object') throw new HttpError(400, 'Card data is missing')
   const out = { socials: {} }
   for (const [k, max] of Object.entries(STR)) {
     const v = input[k]
     out[k] = typeof v === 'string' ? v.trim().slice(0, max) : ''
   }
-  if (!out.name) throw new HttpError(400, 'Add your name before publishing')
+  if (requireName && !out.name) throw new HttpError(400, 'Add your name before publishing')
   out.theme = THEMES.includes(input.theme) ? input.theme : 'glass'
   const av = typeof input.avatar === 'string' ? input.avatar : ''
   if (av && (!AVATAR_RE.test(av) || av.length > AVATAR_MAX)) throw new HttpError(400, 'Photo must be a JPEG, PNG or WebP under 90 KB')
@@ -48,7 +48,7 @@ export function tokenMatches(token, hash) {
 
 export const ID_RE = /^[a-z0-9]{6,16}$/
 
-export async function readBody(req) {
+export async function readBody(req, max = 200_000) {
   if (req.body !== undefined && req.body !== null && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) return req.body
   let raw = typeof req.body === 'string' ? req.body : Buffer.isBuffer(req.body) ? req.body.toString('utf8') : ''
   if (!raw) {
@@ -56,12 +56,12 @@ export async function readBody(req) {
     let size = 0
     for await (const c of req) {
       size += c.length
-      if (size > 200_000) throw new HttpError(413, 'Card is too large')
+      if (size > max) throw new HttpError(413, 'That’s too large to save')
       chunks.push(c)
     }
     raw = Buffer.concat(chunks).toString('utf8')
   }
-  if (raw.length > 200_000) throw new HttpError(413, 'Card is too large')
+  if (raw.length > max) throw new HttpError(413, 'That’s too large to save')
   try {
     return JSON.parse(raw || '{}')
   } catch {

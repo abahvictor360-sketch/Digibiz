@@ -65,10 +65,10 @@ export default function Contact() {
               )
             })}
             <div className="contact-promo">
-              <h3>Want a card first?</h3>
-              <p>It takes about two minutes and it’s free.</p>
-              <Link to="/create" className="btn btn-lime btn-sm">
-                Create my card <Icon name="arrow" size={16} />
+              <h3>Collect cards for free</h3>
+              <p>Your digibiz wallet is free forever. Sign up in seconds.</p>
+              <Link to="/wallet" className="btn btn-lime btn-sm">
+                Open my wallet <Icon name="arrow" size={16} />
               </Link>
             </div>
           </div>
