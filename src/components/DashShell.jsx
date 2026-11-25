@@ -35,7 +35,9 @@ export default function DashShell({ title, admin = false, actions, children }) {
     )
 
   const tabs = [
-    { to: '/dashboard', label: 'My cards', icon: 'card' },
+    { to: '/wallet', label: 'Wallet', icon: 'card' },
+    { to: '/dashboard', label: 'My cards', icon: 'user' },
+    { to: '/billing', label: auth.isPro ? 'Pro' : 'Upgrade', icon: 'bolt' },
     isAdmin && { to: '/admin', label: 'Admin', icon: 'chart' },
   ].filter(Boolean)
 
@@ -64,7 +66,7 @@ export default function DashShell({ title, admin = false, actions, children }) {
       <main className="container dash-main">
         <div className="dash-head">
           <div>
-            <span className="eyebrow"><span className="eyebrow-dot" /> {admin ? 'Admin' : 'Dashboard'}</span>
+            <span className="eyebrow"><span className="eyebrow-dot" /> {admin ? 'Admin' : auth.isPro ? 'digibiz Pro' : 'Free plan'}</span>
             <h1>{title}</h1>
           </div>
           {actions && auth.user && (!admin || isAdmin) && <div className="dash-head-actions">{actions}</div>}

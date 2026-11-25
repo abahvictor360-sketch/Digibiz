@@ -33,8 +33,8 @@ export function Nav() {
           )}
         </nav>
         <div className="nav-cta">
-          <Link to={user ? '/dashboard' : '/login'} className="btn btn-ghost btn-sm nav-account">
-            {user ? 'Dashboard' : 'Sign in'}
+          <Link to={user ? '/wallet' : '/login'} className="btn btn-ghost btn-sm nav-account">
+            {user ? 'My wallet' : 'Sign in'}
           </Link>
           <Link to="/create" className="btn btn-dark btn-sm">
             Create card
@@ -70,7 +70,7 @@ export function Footer({ cta = true }) {
             <a href="/#features">Features</a>
             <Link to="/pricing">Pricing</Link>
             <Link to="/create">Card editor</Link>
-            <Link to="/dashboard">Dashboard</Link>
+            <Link to="/wallet">Card wallet</Link>
           </div>
           <div>
             <h4>Company</h4>

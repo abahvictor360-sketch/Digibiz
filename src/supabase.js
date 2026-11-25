@@ -12,7 +12,23 @@ export function dbError(error) {
   err.code = error.code
   if (error.code === 'P0002') err.status = 404
   if (error.code === '42501') err.status = 403
+  if (error.code === 'PT402') err.status = 402
   return err
+}
+
+// Calls a Supabase Edge Function and turns its { error } body into an Error.
+export async function callFunction(name, body) {
+  const { data, error } = await supabase.functions.invoke(name, { body })
+  if (error) {
+    let msg = error.message
+    try {
+      msg = (await error.context.json()).error || msg
+    } catch {
+      /* not JSON */
+    }
+    throw new Error(msg)
+  }
+  return data
 }
 
 export async function rpc(fn, args) {

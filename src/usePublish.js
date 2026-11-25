@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react'
+import { getAuth } from './auth.js'
+import { navigate } from './router.jsx'
 import { cardFingerprint, cardLink, createCard, loadPub, publishCard, updateOwnedCard } from './lib.js'
 
 // Tracks whether the current card has been published and gives a publish()
@@ -20,6 +22,17 @@ export function usePublish(card, target = { mode: 'local' }, onCreated) {
         return null
       }
       if (!force && pub && pub.fingerprint === cardFingerprint(card)) return pub
+      // Designing is free; publishing needs an account with digibiz Pro.
+      const auth = getAuth()
+      const here = window.location.pathname + window.location.search
+      if (!auth.loading && !auth.user) {
+        navigate(`/login?mode=signup&next=${encodeURIComponent(here)}`)
+        return null
+      }
+      if (!auth.loading && !auth.isPro) {
+        navigate(`/billing?next=${encodeURIComponent(here)}`)
+        return null
+      }
       setBusy(true)
       setError('')
       try {
@@ -36,7 +49,8 @@ export function usePublish(card, target = { mode: 'local' }, onCreated) {
         setPub(next)
         return next
       } catch (e) {
-        setError(e.message)
+        if (e.status === 402) navigate(`/billing?next=${encodeURIComponent(window.location.pathname + window.location.search)}`)
+        else setError(e.message)
         return null
       } finally {
         setBusy(false)

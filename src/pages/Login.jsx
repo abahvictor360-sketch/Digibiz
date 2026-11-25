@@ -5,11 +5,11 @@ import { Link, navigate } from '../router.jsx'
 import { supabase } from '../supabase.js'
 import { useAuth } from '../auth.js'
 
-const safeNext = (n) => (n && n.startsWith('/') && !n.startsWith('//') ? n : '/dashboard')
+const safeNext = (n) => (n && n.startsWith('/') && !n.startsWith('//') ? n : '/wallet')
 
 export default function Login() {
   const next = safeNext(new URLSearchParams(window.location.search).get('next'))
-  const [mode, setMode] = useState(window.location.pathname.startsWith('/signup') ? 'signup' : 'signin')
+  const [mode, setMode] = useState(window.location.pathname.startsWith('/signup') || new URLSearchParams(window.location.search).get('mode') === 'signup' ? 'signup' : 'signin')
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -62,7 +62,7 @@ export default function Login() {
             <h1>{titles[mode]}</h1>
             <p className="muted">
               {mode === 'signup'
-                ? 'Keep all your cards in one place and see who’s viewing them.'
+                ? 'Store every business card you collect for free. Upgrade to Pro to publish your own.'
                 : mode === 'reset'
                   ? 'We’ll email you a link to choose a new password.'
                   : 'Sign in to manage your cards.'}

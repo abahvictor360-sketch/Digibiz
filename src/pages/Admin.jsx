@@ -14,7 +14,7 @@ const TABS = [
   { key: 'messages', label: 'Messages' },
 ]
 
-function Users({ users, me, onRole }) {
+function Users({ users, me, onRole, onComp }) {
   const [q, setQ] = useState('')
   const list = useMemo(() => {
     const s = q.trim().toLowerCase()
@@ -29,8 +29,10 @@ function Users({ users, me, onRole }) {
             <tr>
               <th>User</th>
               <th>Role</th>
+              <th>Plan</th>
               <th className="num">Cards</th>
               <th className="num">Views</th>
+              <th className="num">Wallet</th>
               <th>Joined</th>
               <th>Last sign-in</th>
               <th aria-label="Actions" />
@@ -44,11 +46,18 @@ function Users({ users, me, onRole }) {
                   <span className="muted small block">{u.email}</span>
                 </td>
                 <td><span className={`role-badge ${u.role}`}>{u.role}</span></td>
+                <td><PlanBadge u={u} /></td>
                 <td className="num">{fmtNum(u.card_count)}</td>
                 <td className="num">{fmtNum(u.view_count)}</td>
+                <td className="num">{fmtNum(u.contact_count)}</td>
                 <td>{fmtDate(u.created_at)}</td>
                 <td>{fmtDate(u.last_sign_in_at)}</td>
                 <td className="right">
+                  {u.role !== 'admin' && (
+                    <button className="link-btn" onClick={() => onComp(u, !u.comped)}>
+                      {u.comped ? 'Remove free Pro' : 'Give free Pro'}
+                    </button>
+                  )}
                   {u.id !== me && (
                     <button className="link-btn" onClick={() => onRole(u, u.role === 'admin' ? 'user' : 'admin')}>
                       {u.role === 'admin' ? 'Remove admin' : 'Make admin'}
@@ -58,7 +67,7 @@ function Users({ users, me, onRole }) {
               </tr>
             ))}
             {users && list.length === 0 && (
-              <tr><td colSpan={7} className="muted center">No users match.</td></tr>
+              <tr><td colSpan={9} className="muted center">No users match.</td></tr>
             )}
           </tbody>
         </table>
@@ -66,6 +75,19 @@ function Users({ users, me, onRole }) {
       </div>
     </>
   )
+}
+
+const PAYING = ['active', 'trialing', 'past_due']
+function PlanBadge({ u }) {
+  if (u.role === 'admin') return <span className="role-badge">Included</span>
+  if (u.comped) return <span className="role-badge pro">Pro (free)</span>
+  if (PAYING.includes(u.sub_status))
+    return (
+      <span className={`role-badge ${u.sub_status === 'past_due' ? 'warn' : 'pro'}`} title={`Renews ${fmtDate(u.sub_period_end)}`}>
+        Pro {u.sub_interval === 'year' ? 'yearly' : 'monthly'}{u.sub_status === 'past_due' ? ' · past due' : ''}
+      </span>
+    )
+  return <span className="role-badge">Free</span>
 }
 
 function Search({ value, onChange, placeholder }) {
@@ -167,6 +189,16 @@ export default function Admin() {
       showToast(e.message)
     }
   }
+  const onComp = async (u, comped) => {
+    if (!window.confirm(comped ? `Give ${u.email} digibiz Pro for free?` : `Remove free Pro from ${u.email}? Their cards go offline unless they subscribe.`)) return
+    try {
+      await rpc('admin_set_comped', { p_user_id: u.id, p_comped: comped })
+      setUsers((us) => us.map((x) => (x.id === u.id ? { ...x, comped } : x)))
+      showToast(comped ? 'Pro given' : 'Free Pro removed')
+    } catch (e) {
+      showToast(e.message)
+    }
+  }
   const onToggle = async (c) => {
     setCards((cs) => cs.map((x) => (x.id === c.id ? { ...x, is_active: !c.is_active } : x)))
     try {
@@ -224,9 +256,10 @@ export default function Admin() {
         </button>
       }
     >
-      <div className="stat-row four">
+      <div className="stat-row five">
         <StatTile icon="user" label="Users" value={stats && fmtNum(stats.users)} sub={stats && `+${fmtNum(stats.users_7d)} this week`} />
-        <StatTile icon="card" label="Cards" value={stats && fmtNum(stats.cards)} sub={stats && `${fmtNum(stats.cards_active)} live · ${fmtNum(stats.cards_anonymous)} without account`} />
+        <StatTile icon="bolt" label="Pro members" value={stats && fmtNum(stats.pro)} sub={stats && `${fmtNum(stats.pro_paying)} paying · ~$${fmtNum(stats.mrr)}/mo`} />
+        <StatTile icon="card" label="Cards" value={stats && fmtNum(stats.cards)} sub={stats && `${fmtNum(stats.cards_active)} live · ${fmtNum(stats.contacts)} in wallets`} />
         <StatTile icon="eye" label="Card views" value={stats && fmtNum(stats.views)} sub={stats && `${fmtNum(stats.views_7d)} this week`} />
         <StatTile icon="mail" label="New messages" value={stats && fmtNum(stats.messages_new)} />
       </div>
@@ -240,7 +273,7 @@ export default function Admin() {
             </button>
           ))}
         </div>
-        {tab === 'users' && <Users users={users} me={user?.id} onRole={onRole} />}
+        {tab === 'users' && <Users users={users} me={user?.id} onRole={onRole} onComp={onComp} />}
         {tab === 'cards' && (
           <>
             <Search value={cardQ} onChange={setCardQ} placeholder="Search by name, link id or owner email" />

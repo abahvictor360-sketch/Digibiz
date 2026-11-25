@@ -300,11 +300,7 @@ export default function Editor() {
             </div>
             <p className="field-hint center">
               Your link never changes. Edit and press Publish, and everyone with your link, QR code or NFC card sees the update.{' '}
-              {mode !== 'local'
-                ? 'This card is saved to your account.'
-                : auth.user
-                  ? 'It’s saved to your account, so you can manage it from your dashboard.'
-                  : 'Sign in to manage it from any device.'}
+              {auth.isPro ? 'Manage all your cards from your dashboard.' : 'Designing is free; publishing needs digibiz Pro ($6/month).'}
             </p>
           </div>
         </aside>

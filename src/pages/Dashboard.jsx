@@ -9,7 +9,7 @@ import { useAuth, must, refreshProfile } from '../auth.js'
 import { supabase, rpc } from '../supabase.js'
 import { cardLink, initials, loadPub } from '../lib.js'
 
-export function CardRow({ c, owner, onToggle, onDelete, onQr, showToast }) {
+export function CardRow({ c, owner, offline, onToggle, onDelete, onQr, showToast }) {
   const link = cardLink(c.id)
   const copy = async () => {
     try {
@@ -20,7 +20,7 @@ export function CardRow({ c, owner, onToggle, onDelete, onQr, showToast }) {
     }
   }
   return (
-    <div className={`card-row ${c.is_active ? '' : 'off'}`}>
+    <div className={`card-row ${c.is_active && !offline ? '' : 'off'}`}>
       <span className="card-row-av">
         {c.data?.avatar ? <img src={c.data.avatar} alt="" /> : initials(c.name)}
       </span>
@@ -29,6 +29,7 @@ export function CardRow({ c, owner, onToggle, onDelete, onQr, showToast }) {
         <span className="muted">{[c.data?.title, c.data?.company].filter(Boolean).join(' · ') || 'No title'}</span>
         <a className="card-row-link" href={`/c/${c.id}`} target="_blank" rel="noreferrer">{link.replace(/^https?:\/\//, '')}</a>
         {owner !== undefined && <span className="card-row-owner">{owner || 'No account (anonymous)'}</span>}
+        {offline && <span className="card-row-owner warn-text">Offline: needs digibiz Pro</span>}
       </div>
       <div className="card-row-stats">
         <span><b>{fmtNum(c.view_count)}</b> {c.view_count === 1 ? 'view' : 'views'}</span>
@@ -105,7 +106,7 @@ function Account({ showToast }) {
 }
 
 export default function Dashboard() {
-  const { user, profile } = useAuth()
+  const { user, profile, isPro } = useAuth()
   const [cards, setCards] = useState(null)
   const [daily, setDaily] = useState(null)
   const [qr, setQr] = useState('')
@@ -164,7 +165,7 @@ export default function Dashboard() {
 
   return (
     <DashShell
-      title={first ? `Hi, ${first}` : 'Your cards'}
+      title={first ? `${first}’s cards` : 'My cards'}
       actions={
         <Link to="/create?new" className="btn btn-lime">
           <Icon name="plus" size={18} /> New card
@@ -173,6 +174,17 @@ export default function Dashboard() {
     >
       {user && (
         <>
+          {!isPro && (
+            <div className="notice upsell">
+              <Icon name="bolt" size={18} />
+              <span>
+                {cards?.length
+                  ? 'Your cards are offline because you don’t have digibiz Pro. Upgrade to bring them back online.'
+                  : 'Creating and sharing your own digital card needs digibiz Pro. Storing cards in your wallet is free.'}
+              </span>
+              <Link to="/billing" className="btn btn-lime btn-sm">Upgrade, $6/mo</Link>
+            </div>
+          )}
           <div className="stat-row">
             <StatTile icon="card" label="Cards" value={cards ? fmtNum(cards.length) : null} sub={cards ? `${cards.filter((c) => c.is_active).length} live` : ''} />
             <StatTile icon="eye" label="Total views" value={cards ? fmtNum(views) : null} />
@@ -194,7 +206,7 @@ export default function Dashboard() {
               </div>
             )}
             {cards?.map((c) => (
-              <CardRow key={c.id} c={c} onToggle={onToggle} onDelete={onDelete} onQr={setQr} showToast={showToast} />
+              <CardRow key={c.id} c={c} offline={!isPro} onToggle={onToggle} onDelete={onDelete} onQr={setQr} showToast={showToast} />
             ))}
           </div>
           <Account showToast={showToast} />

@@ -243,7 +243,7 @@ export async function publishCard(card) {
       savePub(next)
       return next
     } catch (e) {
-      if (e.status !== 404 && e.status !== 403) throw e
+      if (e.status !== 404 && e.status !== 403) throw e // 402 (no subscription) bubbles up
       // Card gone or key lost: fall through and create a new one.
     }
   }

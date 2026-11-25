@@ -8,6 +8,8 @@ import Nfc from './pages/Nfc.jsx'
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Admin from './pages/Admin.jsx'
+import Wallet from './pages/Wallet.jsx'
+import Billing from './pages/Billing.jsx'
 
 export default function App() {
   const { path } = useLocation()
@@ -18,6 +20,8 @@ export default function App() {
   if (path === '/login' || path === '/signup') return <Login />
   if (path.startsWith('/dashboard')) return <Dashboard />
   if (path.startsWith('/admin')) return <Admin />
+  if (path.startsWith('/wallet')) return <Wallet />
+  if (path.startsWith('/billing')) return <Billing />
   if (path === '/c' || path.startsWith('/c/')) return <CardView />
   return <Landing />
 }

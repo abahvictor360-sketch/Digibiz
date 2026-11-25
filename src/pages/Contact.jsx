@@ -85,7 +85,7 @@ export default function Contact() {
             })}
             <div className="contact-promo">
               <h3>Want a card first?</h3>
-              <p>It takes about two minutes and it’s free.</p>
+              <p>Design it in about two minutes, then publish with Pro.</p>
               <Link to="/create" className="btn btn-lime btn-sm">
                 Create my card <Icon name="arrow" size={16} />
               </Link>

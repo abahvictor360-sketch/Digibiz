@@ -67,7 +67,7 @@ export default function CardView() {
       </div>
     )
   }
-  if (id && state.status === 'missing') return <Missing title="Card not found" text="This card may have been removed, or the link has a typo." />
+  if (id && state.status === 'missing') return <Missing title="Card not available" text="This card may be paused or removed by its owner, or the link has a typo." />
   if (id && state.status === 'error') return <Missing title="Couldn’t load this card" text="Check your connection and refresh the page." />
   if (!card) return <Missing title="This card link looks incomplete" text="Ask the sender to share their link again, or make a card of your own." />
 
@@ -79,7 +79,7 @@ export default function CardView() {
           <span className="logo-mark small">
             <span />
           </span>
-          Make your own free card with <strong>digibiz</strong>
+          Make your own card with <strong>digibiz</strong>
           <Icon name="arrow" size={16} />
         </Link>
       </div>

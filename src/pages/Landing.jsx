@@ -8,9 +8,10 @@ import { SAMPLE_CARD, SOCIALS } from '../lib.js'
 const DEMO = { ...SAMPLE_CARD, socials: { ...SAMPLE_CARD.socials } }
 
 const FAQS = [
-  ['Is digibiz free?', 'Yes. Creating, sharing and saving a card is free forever. Pro adds custom domains, extra themes and lead capture.'],
+  ['Is digibiz free?', 'Storing the business cards you collect is free, with no limit. Creating and sharing your own digital card needs digibiz Pro, from $5 a month.'],
+  ['Can I keep the paper cards people give me?', 'Yes. Snap the front and back, add notes about where you met and tag them. Your card wallet is searchable and exports to your phone contacts or a spreadsheet.'],
   ['Do the people I share with need an app?', 'No. Your card opens in any browser. They can tap “Save contact” to add you to their phone in one step.'],
-  ['Where is my card stored?', 'When you press Publish, your card is saved securely so your short link, QR code and NFC card always show your latest details. Only the browser you published from can edit it.'],
+  ['Where is my card stored?', 'When you press Publish, your card is saved securely so your short link, QR code and NFC card always show your latest details. Only you can edit it, from any device you sign in on.'],
   ['Can I update my card after sharing it?', 'Yes. Your link never changes. Edit your card, press Publish, and everyone with your link, QR code or NFC card sees the update.'],
   ['Can I print the QR code?', 'Yes. Download the QR as a high-resolution PNG and add it to flyers, packaging, name badges or your email signature.'],
   ['Does it work with NFC cards?', 'Yes. Get any blank NFC card or sticker (NTAG213/215/216), open “NFC card” in the editor and tap the card to your Android phone to write it. iPhone users can use the free NFC Tools app. We also give you print-ready front and back artwork.'],
@@ -38,10 +39,13 @@ function Hero() {
             <br />
             Business <span className="ul">Card</span>
           </h1>
-          <p className="lead">Create a beautiful card in minutes. Share it with a link, QR code or NFC tap, and let people save your contact in one touch.</p>
+          <p className="lead">Create a beautiful card in minutes and share it with a link, QR code or NFC tap. Keep every card you’re handed in a free, searchable wallet.</p>
           <div className="hero-ctas">
             <Link to="/create" className="btn btn-dark btn-lg">
-              Get started, it’s free
+              Design my card
+            </Link>
+            <Link to="/login?mode=signup&next=/wallet" className="btn btn-outline btn-lg">
+              Free card wallet
             </Link>
             <a href="#how" className="btn btn-ghost btn-lg">
               <span className="play">

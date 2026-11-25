@@ -2,38 +2,43 @@ import { Fragment, useEffect, useState } from 'react'
 import { Nav, Footer } from '../components/SiteChrome.jsx'
 import Icon from '../components/Icon.jsx'
 import { Link } from '../router.jsx'
+import { PRICE } from '../config.js'
 
 const PLANS = [
-  { name: 'Starter', m: 0, y: 0, note: 'For trying it out', feats: ['1 digital card', 'QR code & vCard', '5 themes', 'Unlimited shares'], cta: 'Start for free' },
-  { name: 'Pro', m: 6, y: 5, note: 'For professionals', feats: ['3 digital cards', 'Custom short link', 'Lead capture form', 'Premium themes'], cta: 'Go Pro', hot: true },
-  { name: 'Team', m: 19, y: 15, note: 'Up to 10 people', feats: ['10 team cards', 'Shared brand kit', 'Admin dashboard', 'Priority support'], cta: 'Start team trial' },
+  {
+    name: 'Free', m: 0, y: 0, note: 'Your business card wallet',
+    feats: ['Unlimited card storage', 'Photos of front and back', 'Notes, tags and where you met', 'Export to vCard and CSV'],
+    cta: 'Start for free', to: '/login?mode=signup&next=/wallet',
+  },
+  {
+    name: 'Pro', m: PRICE.month, y: PRICE.year, note: 'Your own digital card',
+    feats: ['Everything in Free', 'Create and publish digital cards', 'Short link, QR code and NFC', 'See who views your cards'],
+    cta: 'Go Pro', to: '/billing', hot: true,
+  },
 ]
 
 const COMPARE = [
-  ['Cards', [
-    ['Digital cards', '1', '3', '10'],
-    ['Unlimited sharing', true, true, true],
-    ['QR code download', true, true, true],
-    ['Save-to-contacts (vCard)', true, true, true],
+  ['Wallet', [
+    ['Store business cards you collect', 'Unlimited', 'Unlimited'],
+    ['Front and back photos', true, true],
+    ['Notes, tags, search', true, true],
+    ['Export to vCard and CSV', true, true],
   ]],
-  ['Design', [
-    ['Themes', '5', '5 + premium', '5 + premium'],
-    ['Remove digibiz badge', false, true, true],
-    ['Shared brand kit', false, false, true],
-  ]],
-  ['Growth', [
-    ['Custom short link', false, true, true],
-    ['Lead capture form', false, true, true],
-    ['Admin dashboard', false, false, true],
-    ['Priority support', false, false, true],
+  ['Your digital card', [
+    ['Create and publish cards', false, true],
+    ['Permanent short link and QR code', false, true],
+    ['Write to NFC cards', false, true],
+    ['Save-to-contacts button (vCard)', false, true],
+    ['View analytics', false, true],
   ]],
 ]
 
 const FAQS = [
-  ['Is the Starter plan really free?', 'Yes. Starter is free forever, and no card details are needed. Create your card, share it and let people save your contact.'],
-  ['Can I switch plans later?', 'Any time. Upgrade or downgrade from your account and the change applies from your next billing date.'],
-  ['How does yearly billing work?', 'Pay for 12 months up front and save about 20% compared with paying monthly.'],
-  ['Do you offer plans for larger teams?', 'Yes. For more than 10 people, get in touch and we’ll put together a plan for your organisation.'],
+  ['Is the wallet really free?', 'Yes. Store as many business cards as you like, with photos, notes and tags, at no cost and with no card details needed.'],
+  ['What do I get with Pro?', 'Pro lets you create, publish and share your own digital business cards with a permanent link, QR code and NFC support, and see how often they are viewed.'],
+  ['What happens if I cancel Pro?', 'Your published cards go offline at the end of the period you paid for. Nothing is deleted, and they come back as soon as you resubscribe. Your wallet stays free.'],
+  ['How does yearly billing work?', `Pay $${PRICE.year * 12} for 12 months up front, which works out at $${PRICE.year} a month instead of $${PRICE.month}.`],
+  ['How do I pay?', 'Payments are handled securely by Stripe. You can update your card, switch between monthly and yearly, or cancel at any time from Plan & billing.'],
 ]
 
 function Cell({ v }) {
@@ -60,14 +65,14 @@ export default function Pricing() {
             <span className="eyebrow-dot" /> Pricing
           </span>
           <h1>
-            Simple pricing, <span className="ul">no paper</span>
+            Free to collect, <span className="ul">Pro to share</span>
           </h1>
-          <p className="lead">Start free and upgrade when you need more cards, your own link or lead capture. Cancel any time.</p>
+          <p className="lead">Keep every business card you collect for free. Go Pro to create and share your own. Cancel any time.</p>
           <div className="toggle-row">
             <span className={!yearly ? 'on' : ''}>Monthly</span>
             <button className={`toggle ${yearly ? 'on' : ''}`} onClick={() => setYearly((y) => !y)} aria-pressed={yearly} aria-label="Bill yearly" />
             <span className={yearly ? 'on' : ''}>
-              Yearly <em>save 20%</em>
+              Yearly <em>save {Math.round((1 - PRICE.year / PRICE.month) * 100)}%</em>
             </span>
           </div>
         </div>
@@ -75,7 +80,7 @@ export default function Pricing() {
 
       <section className="section tight-top">
         <div className="container">
-          <div className="plans">
+          <div className="plans two">
             {PLANS.map((p) => (
               <div key={p.name} className={`plan ${p.hot ? 'hot' : ''}`}>
                 {p.hot && <span className="plan-badge">Most popular</span>}
@@ -93,7 +98,7 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <Link to={p.m === 0 ? '/create' : '/contact'} className={`btn btn-block ${p.hot ? 'btn-lime' : 'btn-outline'}`}>
+                <Link to={p.to} className={`btn btn-block ${p.hot ? 'btn-lime' : 'btn-outline'}`}>
                   {p.cta}
                 </Link>
               </div>
@@ -121,7 +126,7 @@ export default function Pricing() {
                 {COMPARE.map(([group, rows]) => (
                   <Fragment key={group}>
                     <tr className="cmp-group">
-                      <th colSpan={4} scope="colgroup">{group}</th>
+                      <th colSpan={PLANS.length + 1} scope="colgroup">{group}</th>
                     </tr>
                     {rows.map(([label, ...vals]) => (
                       <tr key={label}>
